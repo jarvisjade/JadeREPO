@@ -1,0 +1,4 @@
+https://ftpmirror.gnu.org/gnu/gcc/gcc-%VERSION%/gcc-%VERSION%.tar.xz
+https://ftpmirror.gnu.org/gnu/gmp/gmp-6.3.0.tar.xz gmp
+https://ftpmirror.gnu.org/gnu/mpfr/mpfr-4.2.2.tar.xz mpfr
+https://ftpmirror.gnu.org/gnu/mpc/mpc-1.4.1.tar.gz mpc

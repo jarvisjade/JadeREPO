@@ -1,0 +1,34 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=qt6-tools
+srcdir=$PWD
+
+build() {
+    cd qttools-everywhere-src-$pkgver
+    cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=None -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_INSTALL_LIBDIR=lib -DCMAKE_INSTALL_LIBEXECDIR=lib -DCMAKE_INSTALL_SYSCONFDIR=/etc -DBUILD_TESTING=OFF \
+        -DQT_BUILD_EXAMPLES=OFF \
+        -DQT_BUILD_TESTS=OFF \
+        -DFEATURE_linguist=ON \
+        -DFEATURE_assistant=OFF \
+        -DFEATURE_designer=OFF \
+        -DFEATURE_distancefieldgenerator=OFF \
+        -DFEATURE_pixeltool=OFF \
+        -DFEATURE_qtdiag=OFF \
+        -DFEATURE_qtplugininfo=OFF \
+        -DFEATURE_qdbus=OFF \
+        -DFEATURE_qdoc=OFF \
+        -DFEATURE_clang=OFF \
+        -DFEATURE_qtattributionsscanner=OFF
+    cmake --build build
+}
+
+package() {
+    cd qttools-everywhere-src-$pkgver
+    DESTDIR="$pkgdir" cmake --install build
+}
+
+build
+cd "$srcdir"
+package

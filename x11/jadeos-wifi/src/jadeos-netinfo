@@ -1,0 +1,66 @@
+#!/usr/bin/bash
+# See LICENSE file for copyright and license details.
+# jadeos-netinfo: network report (drivers, switches, iwd, addresses, logs).
+
+hardware() {
+	lspci -nnk | grep -A3 -E 'Network controller|Ethernet controller'
+	for dev in /sys/class/net/*/device; do
+		printf '%s: driver %s\n' "$(basename "${dev%/device}")" \
+		    "$(basename "$(readlink -f "$dev/driver")")"
+	done
+}
+
+switches() {
+	for r in /sys/class/rfkill/rfkill*; do
+		printf '%s %s: soft=%s hard=%s\n' "$(<"$r/type")" \
+		    "$(<"$r/name")" "$(<"$r/soft")" "$(<"$r/hard")"
+	done
+}
+
+table() {
+	iwctl "$@" 2>&1 | sed -e 's/\x1b\[[0-9;]*m//g' -e '1,4d' -e '/^ *$/d'
+}
+
+stations() {
+	table device list
+	for st in $(table station list | awk '{ print $1 }'); do
+		printf 'station %s:\n' "$st"
+		table station "$st" show |
+		    grep -E 'State|Connected network|Security|Frequency|RSSI'
+	done
+}
+
+addresses() {
+	ip -br addr
+	ip route
+	grep '^nameserver' /etc/resolv.conf
+}
+
+iwdlog() {
+	tail -n 25 /var/log/iwd.log
+}
+
+dhcpcdlog() {
+	tail -n 25 /var/log/dhcpcd.log
+}
+
+kernel() {
+	local words='wlan|wlp|wlx|wifi|80211|firmware|iwl|ath|brcm|b43|rtw'
+
+	dmesg | grep -iE "$words|rtl|mt7|ipw|eth" | tail -n 30
+}
+
+sections=(
+	"Network hardware and drivers:hardware"
+	"Wi-Fi switches (rfkill, 1 = blocked):switches"
+	"iwd devices and stations:stations"
+	"Addresses, routes and name servers:addresses"
+	"iwd log:iwdlog"
+	"dhcpcd log:dhcpcdlog"
+	"Kernel messages about network devices:kernel"
+)
+
+for s in "${sections[@]}"; do
+	printf '\n== %s\n' "${s%:*}"
+	"${s##*:}" 2>&1
+done

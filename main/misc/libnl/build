@@ -1,0 +1,21 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=libnl
+srcdir=$PWD
+
+build() {
+    cd libnl-$pkgver
+    ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=/usr/lib --libexecdir=/usr/lib --sbindir=/usr/bin --disable-static --disable-debug
+    make
+}
+
+package() {
+    cd libnl-$pkgver
+    make DESTDIR="$pkgdir" install
+}
+
+build
+cd "$srcdir"
+package

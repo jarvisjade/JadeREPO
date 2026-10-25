@@ -1,0 +1,2 @@
+https://download.gnome.org/sources/gdk-pixbuf/2.44/gdk-pixbuf-%VERSION%.tar.xz gdk-pixbuf-%VERSION%
+files/50-gdk-pixbuf-loaders

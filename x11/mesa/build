@@ -1,0 +1,76 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=mesa
+srcdir=$PWD
+
+build() {
+    cd mesa-$pkgver
+
+    meson setup build-host \
+        --buildtype=release \
+        -Dplatforms= \
+        -Dgallium-drivers= \
+        -Dvulkan-drivers= \
+        -Dglx=disabled \
+        -Degl=disabled \
+        -Dgbm=disabled \
+        -Dopengl=false \
+        -Dgles1=disabled \
+        -Dgles2=disabled \
+        -Dllvm=enabled \
+        -Dshared-llvm=enabled \
+        -Dmesa-clc=enabled \
+        -Dinstall-mesa-clc=true \
+        -Dvideo-codecs= \
+        -Dvalgrind=disabled \
+        -Dlibunwind=disabled \
+        -Dlmsensors=disabled \
+        -Dzstd=disabled \
+        -Dxmlconfig=disabled \
+        -Dbuild-tests=false
+    meson compile -C build-host mesa_clc vtn_bindgen2
+    export PATH="$PWD/build-host/src/compiler/clc:$PWD/build-host/src/compiler/spirv:$PATH"
+
+    meson setup build --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=lib --libexecdir=lib --sbindir=bin --buildtype=plain --wrap-mode=nofallback \
+        -Dplatforms=x11 \
+        -Dgallium-drivers=softpipe,iris,crocus,radeonsi,r300,r600,nouveau,virgl,svga \
+        -Dvulkan-drivers= \
+        -Dllvm=disabled \
+        -Damd-use-llvm=false \
+        -Dmesa-clc=system \
+        -Dglx=dri \
+        -Degl=enabled \
+        -Dgbm=enabled \
+        -Dopengl=true \
+        -Dgles1=disabled \
+        -Dgles2=enabled \
+        -Dglvnd=disabled \
+        -Dgallium-va=disabled \
+        -Dgallium-rusticl=false \
+        -Dteflon=false \
+        -Dvideo-codecs= \
+        -Dshader-cache=enabled \
+        -Dzstd=enabled \
+        -Dexpat=enabled \
+        -Dxmlconfig=enabled \
+        -Dspirv-tools=disabled \
+        -Dvalgrind=disabled \
+        -Dlibunwind=disabled \
+        -Dlmsensors=disabled \
+        -Dselinux=false \
+        -Dperfetto=false \
+        -Dbuild-tests=false
+    meson compile -C build
+}
+
+package() {
+    cd mesa-$pkgver
+    meson install -C build --destdir "$pkgdir"
+    install -Dm644 docs/license.rst "$pkgdir/usr/share/licenses/$pkgname/license.rst"
+}
+
+build
+cd "$srcdir"
+package

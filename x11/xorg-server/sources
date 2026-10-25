@@ -1,0 +1,2 @@
+https://www.x.org/releases/individual/xserver/xorg-server-%VERSION%.tar.xz xorg-server-%VERSION%
+files/Xwrapper.config

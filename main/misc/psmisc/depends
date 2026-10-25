@@ -1,0 +1,6 @@
+glibc
+ncurses
+autoconf make
+automake make
+libtool make
+pkgconf make

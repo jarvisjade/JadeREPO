@@ -1,0 +1,43 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=shadow
+srcdir=$PWD
+
+build() {
+    cd shadow-$pkgver
+    ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=/usr/lib --libexecdir=/usr/lib --sbindir=/usr/bin --disable-static \
+        --disable-nls \
+        --disable-account-tools-setuid \
+        --without-libpam \
+        --without-libbsd \
+        --without-selinux \
+        --without-audit \
+        --with-group-name-max-length=32 \
+        --with-yescrypt \
+        --without-su \
+        --disable-logind
+    make
+}
+
+package() {
+    cd shadow-$pkgver
+    make DESTDIR="$pkgdir" exec_prefix=/usr install
+    rm -f "$pkgdir"/usr/{bin,sbin}/{login,nologin,su,groups,chfn,chsh,logoutd}
+    rm -rf "$pkgdir/usr/share/man"
+    sed -i 's/^ENCRYPT_METHOD.*/ENCRYPT_METHOD YESCRYPT/' "$pkgdir/etc/login.defs"
+    install -Dm644 /dev/stdin "$pkgdir/etc/default/useradd" <<'USERADD'
+GROUP=984
+HOME=/home
+INACTIVE=-1
+EXPIRE=
+SHELL=/usr/bin/bash
+SKEL=/etc/skel
+CREATE_MAIL_SPOOL=no
+USERADD
+}
+
+build
+cd "$srcdir"
+package

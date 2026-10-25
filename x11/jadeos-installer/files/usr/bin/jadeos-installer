@@ -1,0 +1,9 @@
+#!/usr/bin/bash
+# See LICENSE file for copyright and license details.
+# Start the JadeOS installer (Calamares) as root from the live session.
+
+if [[ "$(id -u)" -eq 0 ]]; then
+    exec calamares "$@"
+fi
+exec doas env XAUTHORITY="${XAUTHORITY:-$HOME/.Xauthority}" LANG="${LANG:-C.UTF-8}" \
+    calamares "$@"

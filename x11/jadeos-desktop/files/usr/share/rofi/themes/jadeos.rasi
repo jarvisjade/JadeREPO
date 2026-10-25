@@ -1,0 +1,71 @@
+/* JadeOS rofi theme. */
+
+* {
+    jade:             #00a86b;
+    mint:             #7dffc4;
+    bg:               #0b1f17ee;
+    bg-alt:           #0f2a20;
+    fg:               #d6efe4;
+    muted:            #5f8a78;
+    background-color: transparent;
+    text-color:       @fg;
+    font:             "DejaVu Sans 11";
+}
+
+window {
+    width:            40%;
+    padding:          12px;
+    border:           2px;
+    border-color:     @jade;
+    border-radius:    8px;
+    background-color: @bg;
+}
+
+mainbox {
+    spacing:  10px;
+    children: [ inputbar, listview ];
+}
+
+inputbar {
+    padding:          8px;
+    spacing:          8px;
+    border-radius:    6px;
+    background-color: @bg-alt;
+    children:         [ prompt, entry ];
+}
+
+prompt {
+    text-color: @jade;
+}
+
+entry {
+    placeholder:       "Search";
+    placeholder-color: @muted;
+}
+
+listview {
+    lines:     8;
+    columns:   1;
+    spacing:   4px;
+    scrollbar: false;
+}
+
+element {
+    padding:       6px 8px;
+    spacing:       8px;
+    border-radius: 6px;
+}
+
+element selected.normal {
+    background-color: @jade;
+    text-color:       #0b1f17;
+}
+
+element-icon {
+    size: 20px;
+}
+
+element-text {
+    text-color:       inherit;
+    background-color: inherit;
+}

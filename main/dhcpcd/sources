@@ -1,0 +1,2 @@
+https://github.com/NetworkConfiguration/dhcpcd/releases/download/v%VERSION%/dhcpcd-%VERSION%.tar.xz dhcpcd-%VERSION%
+files/dhcpcd.initd

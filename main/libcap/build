@@ -1,0 +1,22 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=libcap
+srcdir=$PWD
+
+build() {
+    cd libcap-$pkgver
+    make CROSS_COMPILE=" BUILD_CC=gcc prefix=/usr lib=lib GOLANG=no PAM_CAP=no
+}
+
+package() {
+    cd libcap-$pkgver
+    make CROSS_COMPILE=" BUILD_CC=gcc prefix=/usr lib=lib sbindir=bin GOLANG=no PAM_CAP=no \
+        DESTDIR="$pkgdir" RAISE_SETFCAP=no install
+    rm -f "$pkgdir"/usr/lib/*.a
+}
+
+build
+cd "$srcdir"
+package

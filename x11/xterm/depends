@@ -1,0 +1,15 @@
+glibc
+ncurses
+libx11
+libxaw
+libxmu
+libxt
+libxext
+libxft
+libxpm
+libxinerama
+libice
+libsm
+fontconfig
+freetype2
+pkgconf make

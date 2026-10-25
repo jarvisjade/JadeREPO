@@ -1,0 +1,27 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=libxext
+srcdir=$PWD
+
+build() {
+    cd libXext-$pkgver
+    ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=/usr/lib --libexecdir=/usr/lib --sbindir=/usr/bin --disable-static \
+        --disable-specs \
+        --without-xmlto \
+        --without-fop \
+        --without-xsltproc \
+        --disable-malloc0returnsnull
+    make
+}
+
+package() {
+    cd libXext-$pkgver
+    make DESTDIR="$pkgdir" install
+    rm -rf "$pkgdir/usr/share/doc"
+}
+
+build
+cd "$srcdir"
+package

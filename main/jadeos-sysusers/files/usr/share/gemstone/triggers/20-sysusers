@@ -1,0 +1,2 @@
+path usr/lib/sysusers.d/*.conf
+run /usr/bin/jo-sysusers

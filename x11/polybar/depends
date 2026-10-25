@@ -1,0 +1,16 @@
+glibc
+gcc
+cairo
+fontconfig
+freetype2
+libuv
+libnl
+libxcb
+xcb-util
+xcb-util-image
+xcb-util-wm
+xcb-util-cursor
+cmake make
+ninja make
+python make
+pkgconf make

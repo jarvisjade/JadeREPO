@@ -1,0 +1,23 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=nano
+srcdir=$PWD
+
+build() {
+    cd nano-9.3
+    ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=/usr/lib --libexecdir=/usr/lib --sbindir=/usr/bin --disable-static --disable-nls --enable-utf8
+    make
+}
+
+package() {
+    cd nano-9.3
+    make DESTDIR="$pkgdir" install
+    rm -rf "$pkgdir/usr/share/info" "$pkgdir/usr/share/doc"
+    install -Dm644 doc/sample.nanorc "$pkgdir/etc/nanorc"
+}
+
+build
+cd "$srcdir"
+package

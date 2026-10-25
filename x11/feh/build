@@ -1,0 +1,22 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=feh
+srcdir=$PWD
+
+build() {
+    cd feh-$pkgver
+    make PREFIX=/usr curl=1 xinerama=1 exif=0 magic=0 help=0 verscmp=1
+}
+
+package() {
+    cd feh-$pkgver
+    make PREFIX=/usr DESTDIR="$pkgdir" install app=0
+    rm -rf "$pkgdir/usr/share/doc"
+    install -Dm644 COPYING "$pkgdir/usr/share/licenses/$pkgname/COPYING"
+}
+
+build
+cd "$srcdir"
+package

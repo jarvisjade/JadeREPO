@@ -1,0 +1,13 @@
+glibc
+bzip2
+expat
+libffi
+libxcrypt
+ncurses
+openssl
+readline
+util-linux
+xz
+zlib
+zstd
+pkgconf make

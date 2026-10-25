@@ -1,0 +1,22 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=linux-api-headers
+srcdir=$PWD
+
+build() {
+    cd linux-$pkgver
+    make ARCH=x86_64 headers
+    find usr/include -type f ! -name '*.h' -delete
+}
+
+package() {
+    cd linux-$pkgver
+    install -d "$pkgdir/usr"
+    cp -r usr/include "$pkgdir/usr/"
+}
+
+build
+cd "$srcdir"
+package

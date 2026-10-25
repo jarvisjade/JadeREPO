@@ -1,0 +1,2 @@
+path usr/share/mime/packages/*.xml
+run /usr/bin/update-mime-database /usr/share/mime

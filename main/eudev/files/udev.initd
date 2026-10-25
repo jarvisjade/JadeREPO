@@ -1,0 +1,31 @@
+#!/usr/bin/openrc-run
+# See LICENSE file for copyright and license details.
+# JadeOS: the udev device manager daemon.
+
+description="udev device manager"
+command=/usr/bin/udevd
+command_args="--daemon"
+pidfile=/run/udev/udevd.pid
+
+depend() {
+	need sysfs dev-mount
+	before checkfs fsck
+	keyword -lxc -vserver -openvz -docker -podman
+}
+
+start_pre() {
+	checkpath -d -m 755 /run/udev
+	udevadm hwdb --update --usr >/dev/null 2>&1 || true
+}
+
+start() {
+	ebegin "Starting udev"
+	/usr/bin/udevd --daemon
+	eend $?
+}
+
+stop() {
+	ebegin "Stopping udev"
+	udevadm control --exit
+	eend $?
+}

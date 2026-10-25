@@ -1,0 +1,4 @@
+path usr/lib/modules/*/vmlinuz
+path usr/bin/jo-mkinitramfs
+path usr/lib/jadeos/initramfs/*
+run /usr/bin/jo-mkinitramfs --trigger

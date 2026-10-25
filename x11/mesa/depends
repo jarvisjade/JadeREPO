@@ -1,0 +1,22 @@
+glibc
+gcc
+zlib
+zstd
+expat
+libdrm
+libx11
+libxcb
+libxext
+libxfixes
+libxxf86vm
+libxshmfence
+libxrandr
+elfutils
+meson make
+ninja make
+pkgconf make
+llvm make
+spirv-llvm-translator make
+libclc make
+python-mako make
+python-pyyaml make

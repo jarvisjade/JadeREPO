@@ -1,0 +1,22 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=openresolv
+srcdir=$PWD
+
+build() {
+    cd openresolv-$pkgver
+    ./configure --prefix=/usr --sysconfdir=/etc --sbindir=/usr/bin --libexecdir=/usr/lib/resolvconf \
+        --rundir=/run
+    make
+}
+
+package() {
+    cd openresolv-$pkgver
+    make DESTDIR="$pkgdir" install
+}
+
+build
+cd "$srcdir"
+package

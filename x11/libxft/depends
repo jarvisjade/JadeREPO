@@ -1,0 +1,6 @@
+glibc
+libx11
+libxrender
+fontconfig
+freetype2
+pkgconf make

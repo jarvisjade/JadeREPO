@@ -1,0 +1,4 @@
+hicolor-icon-theme
+meson make
+ninja make
+pkgconf make

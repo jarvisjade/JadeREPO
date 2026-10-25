@@ -1,0 +1,10 @@
+glibc
+glib
+gtk3
+gdk-pixbuf2
+cairo
+pango
+libx11
+lightdm
+adwaita-icon-theme
+pkgconf make

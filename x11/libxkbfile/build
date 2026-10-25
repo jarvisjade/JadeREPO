@@ -1,0 +1,21 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=libxkbfile
+srcdir=$PWD
+
+build() {
+    cd libxkbfile-$pkgver
+    meson setup build --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=lib --libexecdir=lib --sbindir=bin --buildtype=plain --wrap-mode=nofallback
+    meson compile -C build
+}
+
+package() {
+    cd libxkbfile-$pkgver
+    meson install -C build --destdir "$pkgdir"
+}
+
+build
+cd "$srcdir"
+package

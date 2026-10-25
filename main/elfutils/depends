@@ -1,0 +1,7 @@
+glibc
+gcc
+zlib
+bzip2
+xz
+zstd
+pkgconf make

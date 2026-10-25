@@ -1,0 +1,20 @@
+#!/usr/bin/openrc-run
+# See LICENSE file for copyright and license details.
+# JadeOS: replay kernel events for devices present at boot (coldplug).
+
+description="udev coldplug: create device nodes, load drivers and firmware"
+
+depend() {
+	need udev
+	provide dev
+	before checkfs fsck localmount
+	keyword -lxc -vserver -openvz -docker -podman
+}
+
+start() {
+	ebegin "Populating /dev with existing devices"
+	udevadm trigger --type=subsystems --action=add
+	udevadm trigger --type=devices --action=add
+	udevadm settle --timeout=30
+	eend $?
+}

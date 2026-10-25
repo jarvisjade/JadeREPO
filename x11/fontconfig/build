@@ -1,0 +1,30 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=fontconfig
+srcdir=$PWD
+
+build() {
+    cd fontconfig-$pkgver
+    meson setup build --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=lib --libexecdir=lib --sbindir=bin --buildtype=plain --wrap-mode=nofallback \
+        -Ddoc=disabled \
+        -Dnls=disabled \
+        -Dtests=disabled \
+        -Dtools=enabled \
+        -Dcache-build=disabled \
+        -Dxml-backend=expat \
+        -Dfontations=disabled
+    meson compile -C build
+}
+
+package() {
+    cd fontconfig-$pkgver
+    meson install -C build --destdir "$pkgdir"
+    install -Dm644 "$srcdir/50-fontconfig" "$pkgdir/usr/share/gemstone/triggers/50-fontconfig"
+    rm -rf "$pkgdir/usr/share/doc"
+}
+
+build
+cd "$srcdir"
+package

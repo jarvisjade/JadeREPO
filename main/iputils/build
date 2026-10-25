@@ -1,0 +1,21 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=iputils
+srcdir=$PWD
+
+build() {
+    cd iputils-$pkgver
+    meson setup build --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=lib --libexecdir=lib --sbindir=bin --buildtype=plain --wrap-mode=nofallback -DBUILD_MANS=false -DBUILD_HTML_MANS=false -DUSE_GETTEXT=false -DSKIP_TESTS=true
+    meson compile -C build
+}
+
+package() {
+    cd iputils-$pkgver
+    meson install -C build --destdir "$pkgdir"
+}
+
+build
+cd "$srcdir"
+package

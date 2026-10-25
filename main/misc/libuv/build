@@ -1,0 +1,29 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=libuv
+srcdir=$PWD
+
+build() {
+    cd libuv-v$pkgver
+    cmake -S . -B build \
+        -DCMAKE_BUILD_TYPE=None \
+        -DCMAKE_INSTALL_PREFIX=/usr \
+        -DCMAKE_INSTALL_LIBDIR=lib \
+        -DLIBUV_BUILD_SHARED=ON \
+        -DLIBUV_BUILD_TESTS=OFF \
+        -DLIBUV_BUILD_BENCH=OFF
+    cmake --build build -j "$GEMSTONE_JOBS"
+}
+
+package() {
+    cd libuv-v$pkgver
+    DESTDIR="$pkgdir" cmake --install build
+    rm -f "$pkgdir/usr/lib/libuv.a" "$pkgdir/usr/lib/pkgconfig/libuv-static.pc"
+    rm -rf "$pkgdir/usr/share/doc"
+}
+
+build
+cd "$srcdir"
+package

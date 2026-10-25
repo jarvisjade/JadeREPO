@@ -1,0 +1,15 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=jadeos-desktop
+srcdir=$PWD
+
+package() {
+    cp -a "$srcdir/files/." "$pkgdir/"
+    chmod -R u=rwX,go=rX "$pkgdir"
+    chmod 755 "$pkgdir/usr/bin/jadeos-launcher" "$pkgdir/usr/bin/jadeos-panel"
+}
+
+cd "$srcdir"
+package

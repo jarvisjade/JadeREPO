@@ -1,0 +1,15 @@
+glibc
+glib
+libxcb
+libxdmcp
+libx11
+libxklavier
+libgcrypt
+linux-pam
+xorg-server
+jadeos-sysusers
+autoconf make
+automake make
+libtool make
+intltool make
+pkgconf make

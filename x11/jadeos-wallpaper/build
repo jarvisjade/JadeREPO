@@ -1,0 +1,15 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=jadeos-wallpaper
+srcdir=$PWD
+
+package() {
+    cp -a "$srcdir/files/." "$pkgdir/"
+    chmod 755 "$pkgdir/usr/bin/jadeos-wallpaper"
+    chmod 644 "$pkgdir/usr/share/backgrounds/jadeos/jadeos-wallpaper.jpg"
+}
+
+cd "$srcdir"
+package

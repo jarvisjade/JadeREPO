@@ -1,0 +1,28 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=pcre2
+srcdir=$PWD
+
+build() {
+    cd pcre2-$pkgver
+    ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=/usr/lib --libexecdir=/usr/lib --sbindir=/usr/bin --disable-static \
+        --enable-pcre2-16 \
+        --enable-pcre2-32 \
+        --enable-jit \
+        --disable-pcre2grep-libz \
+        --disable-pcre2grep-libbz2 \
+        --disable-pcre2test-libreadline
+    make
+}
+
+package() {
+    cd pcre2-$pkgver
+    make DESTDIR="$pkgdir" install
+    rm -rf "$pkgdir/usr/share/doc"
+}
+
+build
+cd "$srcdir"
+package

@@ -1,0 +1,29 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=libxkbcommon
+srcdir=$PWD
+
+build() {
+    cd libxkbcommon-xkbcommon-$pkgver
+    meson setup build --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=lib --libexecdir=lib --sbindir=bin --buildtype=plain --wrap-mode=nofallback \
+        -Dxkb-config-root=/usr/share/X11/xkb \
+        -Dx-locale-root=/usr/share/X11/locale \
+        -Denable-x11=true \
+        -Denable-wayland=false \
+        -Denable-xkbregistry=false \
+        -Denable-tools=false \
+        -Denable-docs=false \
+        -Denable-bash-completion=false
+    meson compile -C build
+}
+
+package() {
+    cd libxkbcommon-xkbcommon-$pkgver
+    meson install -C build --destdir "$pkgdir"
+}
+
+build
+cd "$srcdir"
+package

@@ -1,0 +1,39 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=glib
+srcdir=$PWD
+
+build() {
+    cd glib-$pkgver
+    meson setup build --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=lib --libexecdir=lib --sbindir=bin --buildtype=plain --wrap-mode=nofallback \
+        -Dintrospection=disabled \
+        -Ddocumentation=false \
+        -Dman-pages=disabled \
+        -Dtests=false \
+        -Dinstalled_tests=false \
+        -Dlibmount=enabled \
+        -Dselinux=disabled \
+        -Dxattr=true \
+        -Dlibelf=disabled \
+        -Dsysprof=disabled \
+        -Ddtrace=disabled \
+        -Dsystemtap=disabled \
+        -Dglib_debug=disabled \
+        -Dnls=enabled
+    meson compile -C build
+}
+
+package() {
+    cd glib-$pkgver
+    meson install -C build --destdir "$pkgdir"
+    install -Dm644 "$srcdir/50-glib-schemas" "$pkgdir/usr/share/gemstone/triggers/50-glib-schemas"
+    install -Dm644 "$srcdir/50-gio-modules" "$pkgdir/usr/share/gemstone/triggers/50-gio-modules"
+    install -d "$pkgdir/usr/lib/gio/modules"
+    rm -rf "$pkgdir/usr/share/bash-completion"
+}
+
+build
+cd "$srcdir"
+package

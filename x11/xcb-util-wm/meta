@@ -1,0 +1,3 @@
+description: XCB client and window-manager helpers for ICCCM and EWMH
+url: https://www.x.org/
+license: MIT

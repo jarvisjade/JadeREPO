@@ -1,0 +1,31 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=rofi
+srcdir=$PWD
+
+build() {
+    cd rofi-$pkgver
+    meson setup build --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=lib --libexecdir=lib --sbindir=bin --buildtype=plain --wrap-mode=nofallback \
+        -Dxcb=enabled \
+        -Dwayland=disabled \
+        -Dimdkit=false \
+        -Dcheck=disabled \
+        -Ddrun=true \
+        -Dwindow=true
+    meson compile -C build
+}
+
+package() {
+    cd rofi-$pkgver
+    meson install -C build --destdir "$pkgdir"
+    local entry
+    for entry in "$pkgdir"/usr/share/applications/rofi*.desktop; do
+        printf 'NoDisplay=true\n' >> "$entry"
+    done
+}
+
+build
+cd "$srcdir"
+package

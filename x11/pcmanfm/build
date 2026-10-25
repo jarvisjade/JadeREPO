@@ -1,0 +1,22 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=pcmanfm
+srcdir=$PWD
+
+build() {
+    cd pcmanfm-$pkgver
+    export CFLAGS="$CFLAGS -std=gnu17 -Wno-error=incompatible-pointer-types"
+    ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=/usr/lib --libexecdir=/usr/lib --sbindir=/usr/bin --disable-static --with-gtk=3
+    make
+}
+
+package() {
+    cd pcmanfm-$pkgver
+    make DESTDIR="$pkgdir" install
+}
+
+build
+cd "$srcdir"
+package

@@ -1,0 +1,23 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=libxpm
+srcdir=$PWD
+
+build() {
+    cd libXpm-$pkgver
+    ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=/usr/lib --libexecdir=/usr/lib --sbindir=/usr/bin --disable-static \
+        --disable-unit-tests
+    make
+}
+
+package() {
+    cd libXpm-$pkgver
+    make DESTDIR="$pkgdir" install
+    rm -rf "$pkgdir/usr/share/doc"
+}
+
+build
+cd "$srcdir"
+package

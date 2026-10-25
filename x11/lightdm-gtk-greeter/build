@@ -1,0 +1,27 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=lightdm-gtk-greeter
+srcdir=$PWD
+
+build() {
+    cd lightdm-gtk-greeter-$pkgver
+    ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=/usr/lib --libexecdir=/usr/lib --sbindir=/usr/bin --disable-static \
+        --disable-libindicator \
+        --disable-libido \
+        --without-libxklavier \
+        --enable-kill-on-sigterm \
+        --enable-at-spi-command="/usr/lib/at-spi-bus-launcher --launch-immediately"
+    make
+}
+
+package() {
+    cd lightdm-gtk-greeter-$pkgver
+    make DESTDIR="$pkgdir" install
+    rm -rf "$pkgdir/usr/share/doc"
+}
+
+build
+cd "$srcdir"
+package

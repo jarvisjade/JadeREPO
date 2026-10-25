@@ -1,0 +1,7 @@
+glibc
+gcc
+glib
+freetype2
+meson make
+ninja make
+pkgconf make

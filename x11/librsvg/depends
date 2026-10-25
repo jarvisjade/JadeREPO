@@ -1,0 +1,14 @@
+glibc
+gcc
+glib
+cairo
+pango
+freetype2
+harfbuzz
+fontconfig
+libxml2
+gdk-pixbuf2
+meson make
+ninja make
+rust make
+pkgconf make

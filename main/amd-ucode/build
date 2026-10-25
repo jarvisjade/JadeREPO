@@ -1,0 +1,21 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=amd-ucode
+srcdir=$PWD
+
+build() {
+    mkdir -p early/kernel/x86/microcode
+    cat linux-firmware-$pkgver/amd-ucode/microcode_amd*.bin > early/kernel/x86/microcode/AuthenticAMD.bin
+    (cd early && find . | LC_ALL=C sort | cpio --quiet -o -H newc --reproducible) > amd-ucode.img
+}
+
+package() {
+    install -Dm644 amd-ucode.img "$pkgdir/boot/amd-ucode.img"
+    install -Dm644 linux-firmware-$pkgver/LICENSES/LICENSE.amd-ucode "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}
+
+build
+cd "$srcdir"
+package

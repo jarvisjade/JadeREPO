@@ -1,0 +1,41 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=imlib2
+srcdir=$PWD
+
+build() {
+    cd imlib2-$pkgver
+    ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=/usr/lib --libexecdir=/usr/lib --sbindir=/usr/bin --disable-static \
+        --with-x \
+        --with-png \
+        --with-jpeg \
+        --with-zlib \
+        --with-bz2 \
+        --with-lzma \
+        --without-avif \
+        --without-heif \
+        --without-jxl \
+        --without-webp \
+        --without-tiff \
+        --without-gif \
+        --without-svg \
+        --without-j2k \
+        --without-ps \
+        --without-raw \
+        --without-id3 \
+        --without-y4m \
+        --disable-progs \
+        --disable-doc-build
+    make
+}
+
+package() {
+    cd imlib2-$pkgver
+    make DESTDIR="$pkgdir" install
+}
+
+build
+cd "$srcdir"
+package

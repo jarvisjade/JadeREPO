@@ -1,0 +1,2 @@
+description: JadeOS init: openrc-init as /usr/bin/init, poweroff/reboot/halt/shutdown, hostname
+license: GPL-2.0-only

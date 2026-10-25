@@ -1,0 +1,29 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=libxi
+srcdir=$PWD
+
+build() {
+    cd libXi-$pkgver
+    ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=/usr/lib --libexecdir=/usr/lib --sbindir=/usr/bin --disable-static \
+        --disable-docs \
+        --disable-specs \
+        --without-xmlto \
+        --without-fop \
+        --without-xsltproc \
+        --without-asciidoc \
+        --disable-malloc0returnsnull
+    make
+}
+
+package() {
+    cd libXi-$pkgver
+    make DESTDIR="$pkgdir" install
+    rm -rf "$pkgdir/usr/share/doc"
+}
+
+build
+cd "$srcdir"
+package

@@ -1,0 +1,3 @@
+description: Zstandard fast real-time compression library and tools
+url: https://facebook.github.io/zstd/
+license: BSD-3-Clause GPL-2.0-only

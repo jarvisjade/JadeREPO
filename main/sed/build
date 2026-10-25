@@ -1,0 +1,22 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=sed
+srcdir=$PWD
+
+build() {
+    cd sed-4.10
+    ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=/usr/lib --libexecdir=/usr/lib --sbindir=/usr/bin --disable-static --disable-nls
+    make
+}
+
+package() {
+    cd sed-4.10
+    make DESTDIR="$pkgdir" install
+    rm -rf "$pkgdir/usr/share/info" "$pkgdir/usr/share/doc"
+}
+
+build
+cd "$srcdir"
+package

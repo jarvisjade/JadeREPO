@@ -1,0 +1,21 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=ell
+srcdir=$PWD
+
+build() {
+    cd ell-$pkgver
+    ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=/usr/lib --libexecdir=/usr/lib --sbindir=/usr/bin --disable-static
+    make
+}
+
+package() {
+    cd ell-$pkgver
+    make DESTDIR="$pkgdir" install
+}
+
+build
+cd "$srcdir"
+package

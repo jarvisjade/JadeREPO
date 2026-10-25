@@ -1,0 +1,26 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=xfsprogs
+srcdir=$PWD
+
+build() {
+    cd xfsprogs-$pkgver
+    ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=/usr/lib --libexecdir=/usr/lib --sbindir=/usr/bin --disable-static \
+        --enable-gettext=no \
+        --enable-libicu=no \
+        --enable-scrub=no \
+        --enable-lto=no
+    make
+}
+
+package() {
+    cd xfsprogs-$pkgver
+    make -j1 DIST_ROOT="$pkgdir" PKG_ROOT_SBIN_DIR=/usr/bin PKG_SBIN_DIR=/usr/bin install
+    rm -rf "$pkgdir/usr/share/doc" "$pkgdir/usr/share/man"
+}
+
+build
+cd "$srcdir"
+package

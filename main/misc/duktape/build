@@ -1,0 +1,27 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=duktape
+srcdir=$PWD
+
+build() {
+    cd duktape-$pkgver
+    make -f Makefile.sharedlibrary INSTALL_PREFIX=/usr LIBDIR=/lib CC="$CC" \
+        libduktape.so.207.20700 duktape.pc
+}
+
+package() {
+    cd duktape-$pkgver
+    install -Dm755 libduktape.so.207.20700 "$pkgdir/usr/lib/libduktape.so.207.20700"
+    ln -s libduktape.so.207.20700 "$pkgdir/usr/lib/libduktape.so.207"
+    ln -s libduktape.so.207.20700 "$pkgdir/usr/lib/libduktape.so"
+    install -Dm644 duktape.pc "$pkgdir/usr/lib/pkgconfig/duktape.pc"
+    install -Dm644 src/duktape.h "$pkgdir/usr/include/duktape.h"
+    install -Dm644 src/duk_config.h "$pkgdir/usr/include/duk_config.h"
+    install -Dm644 LICENSE.txt "$pkgdir/usr/share/licenses/$pkgname/LICENSE.txt"
+}
+
+build
+cd "$srcdir"
+package

@@ -1,0 +1,7 @@
+glibc
+glib
+libxml2
+gcc
+meson make
+ninja make
+pkgconf make

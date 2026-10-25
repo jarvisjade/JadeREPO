@@ -1,0 +1,25 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=xkeyboard-config
+srcdir=$PWD
+
+build() {
+    cd xkeyboard-config-$pkgver
+    meson setup build --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=lib --libexecdir=lib --sbindir=bin --buildtype=plain --wrap-mode=nofallback \
+        -Dxorg-rules-symlinks=true \
+        -Dcompat-rules=true \
+        -Dnls=true \
+        -Dnon-latin-layouts-list=false
+    meson compile -C build
+}
+
+package() {
+    cd xkeyboard-config-$pkgver
+    meson install -C build --destdir "$pkgdir"
+}
+
+build
+cd "$srcdir"
+package

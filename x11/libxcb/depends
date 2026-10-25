@@ -1,0 +1,5 @@
+glibc
+libxau
+libxdmcp
+python make
+pkgconf make

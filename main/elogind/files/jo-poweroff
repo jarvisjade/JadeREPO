@@ -1,0 +1,4 @@
+#!/usr/bin/bash
+# See LICENSE file for copyright and license details.
+# JadeOS: elogind runs this to poweroff; OpenRC does the work.
+exec /usr/bin/openrc-shutdown --poweroff now

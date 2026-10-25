@@ -1,0 +1,3 @@
+description: Dependency-based init system and service manager
+url: https://github.com/OpenRC/openrc
+license: BSD-2-Clause

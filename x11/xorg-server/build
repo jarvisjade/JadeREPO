@@ -1,0 +1,57 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=xorg-server
+srcdir=$PWD
+
+build() {
+    cd xorg-server-$pkgver
+    sed -i 's|strstr((const char \*)renderer, "llvmpipe")|(strstr((const char *)renderer, "llvmpipe") \|\| strstr((const char *)renderer, "softpipe"))|' \
+        glamor/glamor_egl.c
+    grep -q '"softpipe"' glamor/glamor_egl.c
+    meson setup build --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=lib --libexecdir=lib --sbindir=bin --buildtype=plain --wrap-mode=nofallback \
+        -Dxorg=true \
+        -Dxephyr=false \
+        -Dxnest=false \
+        -Dxvfb=false \
+        -Dxwin=false \
+        -Dxquartz=false \
+        -Dglamor=true \
+        -Dglx=true \
+        -Ddri1=false \
+        -Ddri2=true \
+        -Ddri3=true \
+        -Dudev=true \
+        -Dudev_kms=true \
+        -Dhal=false \
+        -Dsystemd_logind=false \
+        -Dsuid_wrapper=true \
+        -Dsecure-rpc=false \
+        -Dsha1=libcrypto \
+        -Dlibunwind=false \
+        -Ddocs=false \
+        -Ddevel-docs=false \
+        -Ddocs-pdf=false \
+        -Dlog_dir=/var/log \
+        -Dxkb_dir=/usr/share/X11/xkb \
+        -Dxkb_output_dir=/var/lib/xkb \
+        -Dxkb_bin_dir=/usr/bin \
+        -Ddefault_font_path=/usr/share/fonts/misc,/usr/share/fonts/TTF,/usr/share/fonts/OTF,/usr/share/fonts/Type1,/usr/share/fonts/100dpi,/usr/share/fonts/75dpi,built-ins
+    sed -i "s|/|/|g" build/include/*.h
+    ! grep -rq "" build/include
+    meson compile -C build
+}
+
+package() {
+    cd xorg-server-$pkgver
+    meson install -C build --destdir "$pkgdir"
+    chmod 4755 "$pkgdir/usr/lib/Xorg.wrap"
+    install -Dm644 "$srcdir/Xwrapper.config" "$pkgdir/etc/X11/Xwrapper.config"
+    install -d "$pkgdir/var/lib/xkb" "$pkgdir/etc/X11/xorg.conf.d"
+    rm -rf "$pkgdir/usr/share/doc"
+}
+
+build
+cd "$srcdir"
+package

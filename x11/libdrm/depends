@@ -1,0 +1,5 @@
+glibc
+libpciaccess
+meson make
+ninja make
+pkgconf make

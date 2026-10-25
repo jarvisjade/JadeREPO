@@ -1,0 +1,32 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=python
+srcdir=$PWD
+
+build() {
+    cd Python-$pkgver
+    ac_cv_file__dev_ptmx=yes ac_cv_file__dev_ptc=no ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=/usr/lib --libexecdir=/usr/lib --sbindir=/usr/bin --disable-static \
+        --enable-shared \
+        --enable-ipv6 \
+        --with-system-expat \
+        --without-system-libmpdec \
+        --without-ensurepip \
+        --with-dbmliborder= \
+        --disable-test-modules
+    make
+}
+
+package() {
+    cd Python-$pkgver
+    make DESTDIR="$pkgdir" install
+    ln -s python3 "$pkgdir/usr/bin/python"
+    ln -s python3-config "$pkgdir/usr/bin/python-config"
+    rm -rf "$pkgdir/usr/lib/python3.14/test" "$pkgdir/usr/lib/python3.14/idlelib/idle_test" \
+        "$pkgdir/usr/share/man"
+}
+
+build
+cd "$srcdir"
+package

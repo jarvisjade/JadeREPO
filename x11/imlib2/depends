@@ -1,0 +1,11 @@
+glibc
+freetype2
+libpng
+libjpeg-turbo
+zlib
+bzip2
+xz
+libx11
+libxext
+libxcb
+pkgconf make

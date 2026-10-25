@@ -1,0 +1,10 @@
+glibc
+ncurses
+readline
+zlib
+libxcrypt
+libcap
+linux-pam
+file
+python make
+pkgconf make

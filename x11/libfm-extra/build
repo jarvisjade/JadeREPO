@@ -1,0 +1,26 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=libfm-extra
+srcdir=$PWD
+
+build() {
+    cd libfm-$pkgver
+    export CFLAGS="$CFLAGS -std=gnu17"
+    ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=/usr/lib --libexecdir=/usr/lib --sbindir=/usr/bin --disable-static \
+        --with-extra-only \
+        --with-gtk=no \
+        --disable-old-actions \
+        --disable-gtk-doc
+    make
+}
+
+package() {
+    cd libfm-$pkgver
+    make DESTDIR="$pkgdir" install
+}
+
+build
+cd "$srcdir"
+package

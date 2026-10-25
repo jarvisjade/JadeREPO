@@ -1,0 +1,3 @@
+description: Modern library for one-way hashing of passwords
+url: https://github.com/besser82/libxcrypt
+license: LGPL-2.1-or-later

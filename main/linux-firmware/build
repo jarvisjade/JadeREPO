@@ -1,0 +1,17 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=linux-firmware
+srcdir=$PWD
+
+package() {
+    cd linux-firmware-$pkgver
+    ./copy-firmware.sh "$pkgdir/usr/lib/firmware"
+    install -Dm644 WHENCE "$pkgdir/usr/share/licenses/$pkgname/WHENCE"
+    cp -r LICENSES/. "$pkgdir/usr/share/licenses/$pkgname/"
+    install -m644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}
+
+cd "$srcdir"
+package

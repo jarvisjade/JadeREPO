@@ -1,0 +1,21 @@
+#!/usr/bin/openrc-run
+# See LICENSE file for copyright and license details.
+# JadeOS: the D-Bus system message bus.
+
+description="D-Bus system message bus"
+command=/usr/bin/dbus-daemon
+command_args="--system --nofork --nopidfile --syslog-only"
+command_background=yes
+pidfile=/run/dbus/pid
+
+depend() {
+	need localmount
+	after bootmisc
+}
+
+start_pre() {
+	checkpath -d -m 755 -o root:root /run/dbus
+	/usr/bin/dbus-uuidgen --ensure=/etc/machine-id
+	mkdir -p /var/lib/dbus
+	ln -sfn /etc/machine-id /var/lib/dbus/machine-id
+}

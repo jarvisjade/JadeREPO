@@ -1,0 +1,18 @@
+glibc
+gcc
+python
+qt6-base
+qt6-svg
+kcoreaddons
+ki18n
+kwidgetsaddons
+kpmcore
+yaml-cpp
+polkit-qt6
+libxcrypt
+util-linux
+e2fsprogs
+dosfstools
+cmake make
+ninja make
+pkgconf make

@@ -1,0 +1,3 @@
+description: Run commands as another user (OpenBSD doas)
+url: https://github.com/Duncaen/OpenDoas
+license: ISC

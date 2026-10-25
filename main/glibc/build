@@ -1,0 +1,43 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=glibc
+srcdir=$PWD
+
+build() {
+    mkdir -p glibc-$pkgver/build
+    cd glibc-$pkgver/build
+    printf 'slibdir=/usr/lib\nrtlddir=/usr/lib\nsbindir=/usr/bin\nrootsbindir=/usr/bin\n' > configparms
+    CFLAGS="-O2 -pipe -march=x86-64 -mtune=generic" CXXFLAGS= LDFLAGS= CXX=false \
+    ../configure \
+        --prefix=/usr \
+        --libdir=/usr/lib \
+        --libexecdir=/usr/lib \
+        \
+        \
+        --with-headers="/usr/include" \
+        --enable-kernel=5.10 \
+        --enable-stack-protector=strong \
+        --enable-bind-now \
+        --disable-nscd \
+        --disable-werror
+    make
+}
+
+package() {
+    cd glibc-$pkgver/build
+    make DESTDIR="$pkgdir" install
+    rm -rf "$pkgdir/var/db" "$pkgdir/etc/ld.so.cache"
+    install -Dm644 ../posix/gai.conf "$pkgdir/etc/gai.conf"
+    install -Dm644 ../localedata/SUPPORTED "$pkgdir/usr/share/i18n/SUPPORTED"
+    printf '# Locales to compile with locale-gen; see /usr/share/i18n/SUPPORTED.\nC.UTF-8 UTF-8\nen_US.UTF-8 UTF-8\n' > "$pkgdir/etc/locale.gen"
+    install -d "$pkgdir/usr/lib/locale"
+    install -Dm755 "$srcdir/locale-gen" "$pkgdir/usr/bin/locale-gen"
+    install -Dm644 "$srcdir/30-locale-gen" "$pkgdir/usr/share/gemstone/triggers/30-locale-gen"
+    install -Dm644 "$srcdir/10-ldconfig" "$pkgdir/usr/share/gemstone/triggers/10-ldconfig"
+}
+
+build
+cd "$srcdir"
+package

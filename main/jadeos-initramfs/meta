@@ -1,0 +1,2 @@
+description: JadeOS initramfs generator (bash, uutils, util-linux, kmod) and kernel hooks
+license: GPL-2.0-only

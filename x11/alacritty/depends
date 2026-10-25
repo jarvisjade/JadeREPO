@@ -1,0 +1,13 @@
+glibc
+gcc
+fontconfig
+freetype2
+libx11
+libxcb
+libxcursor
+libxrandr
+libxi
+libxkbcommon
+mesa
+ncurses
+rust make

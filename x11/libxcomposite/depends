@@ -1,0 +1,4 @@
+glibc
+libx11
+libxfixes
+pkgconf make

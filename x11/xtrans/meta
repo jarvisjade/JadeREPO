@@ -1,0 +1,3 @@
+description: X transport library (header-only network code shared by X libraries)
+url: https://gitlab.freedesktop.org/xorg/lib/libxtrans
+license: MIT

@@ -1,0 +1,3 @@
+https://download.gnome.org/sources/glib/2.90/glib-%VERSION%.tar.xz glib-%VERSION%
+files/50-glib-schemas
+files/50-gio-modules

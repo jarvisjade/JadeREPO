@@ -1,0 +1,9 @@
+#!/usr/bin/bash
+# See LICENSE file for copyright and license details.
+# jadeos-wallpaper: set the desktop wallpaper with feh.
+
+if [[ -x "$HOME/.fehbg" ]]; then
+    exec "$HOME/.fehbg"
+fi
+
+exec feh --no-fehbg --bg-fill /usr/share/backgrounds/jadeos/jadeos-wallpaper.jpg

@@ -1,0 +1,21 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=xdotool
+srcdir=$PWD
+
+build() {
+    cd xdotool-$pkgver
+    make PREFIX=/usr CC="$CC" LDCONFIG=true xdotool libxdo.so
+}
+
+package() {
+    cd xdotool-$pkgver
+    make PREFIX=/usr DESTDIR="$pkgdir" INSTALLMAN=/usr/share/man LDCONFIG=true \
+        installlib installprog installheader
+}
+
+build
+cd "$srcdir"
+package

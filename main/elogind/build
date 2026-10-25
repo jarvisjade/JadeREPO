@@ -1,0 +1,56 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=elogind
+srcdir=$PWD
+
+build() {
+    cd elogind-$pkgver
+    meson setup build --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=lib --libexecdir=lib --sbindir=bin --buildtype=plain --wrap-mode=nofallback \
+        -Dmode=release \
+        -Dlibexecdir=lib/elogind \
+        -Dcgroup-controller=openrc \
+        -Dhalt-path=/usr/lib/elogind/jo-halt \
+        -Dpoweroff-path=/usr/lib/elogind/jo-poweroff \
+        -Dreboot-path=/usr/lib/elogind/jo-reboot \
+        -Dkexec-path=/usr/bin/kexec \
+        -Dnologin-path=/usr/bin/nologin \
+        -Dudevrulesdir=/usr/lib/udev/rules.d \
+        -Dudevbindir=/usr/lib/udev \
+        -Ddbuspolicydir=/usr/share/dbus-1/system.d \
+        -Ddbussystemservicedir=/usr/share/dbus-1/system-services \
+        -Dpamlibdir=/usr/lib/security \
+        -Dpamconfdir=/etc/pam.d \
+        -Dbashcompletiondir=no \
+        -Dzshcompletiondir=no \
+        -Ddocdir=/usr/share/doc/elogind \
+        -Dpam=enabled \
+        -Dacl=enabled \
+        -Dpolkit=enabled \
+        -Dselinux=disabled \
+        -Dsmack=false \
+        -Daudit=disabled \
+        -Dxenctrl=disabled \
+        -Dutmp=true \
+        -Defi=false \
+        -Dman=disabled \
+        -Dhtml=disabled \
+        -Dtests=false \
+        -Ddefault-kill-user-processes=false
+    meson compile -C build
+}
+
+package() {
+    cd elogind-$pkgver
+    meson install -C build --destdir "$pkgdir"
+    install -Dm755 "$srcdir/elogind.initd" "$pkgdir/etc/init.d/elogind"
+    install -Dm755 "$srcdir/jo-poweroff" "$pkgdir/usr/lib/elogind/jo-poweroff"
+    install -Dm755 "$srcdir/jo-reboot" "$pkgdir/usr/lib/elogind/jo-reboot"
+    install -Dm755 "$srcdir/jo-halt" "$pkgdir/usr/lib/elogind/jo-halt"
+    rm -rf "$pkgdir/usr/share/doc" "$pkgdir/usr/share/bash-completion" "$pkgdir/usr/share/zsh" "$pkgdir/no"
+}
+
+build
+cd "$srcdir"
+package

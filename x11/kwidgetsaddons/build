@@ -1,0 +1,26 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=kwidgetsaddons
+srcdir=$PWD
+
+build() {
+    cd kwidgetsaddons-$pkgver
+    cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=None -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_INSTALL_LIBDIR=lib -DCMAKE_INSTALL_LIBEXECDIR=lib -DCMAKE_INSTALL_SYSCONFDIR=/etc -DBUILD_TESTING=OFF \
+        -DKDE_INSTALL_LIBDIR=lib \
+        -DKDE_INSTALL_LIBEXECDIR=lib \
+        -DBUILD_QCH=OFF \
+        -DBUILD_PYTHON_BINDINGS=OFF \
+        -DBUILD_DESIGNERPLUGIN=OFF
+    cmake --build build
+}
+
+package() {
+    cd kwidgetsaddons-$pkgver
+    DESTDIR="$pkgdir" cmake --install build
+}
+
+build
+cd "$srcdir"
+package

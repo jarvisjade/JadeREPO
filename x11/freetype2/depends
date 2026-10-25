@@ -1,0 +1,7 @@
+glibc
+zlib
+bzip2
+libpng
+meson make
+ninja make
+pkgconf make

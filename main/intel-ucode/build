@@ -1,0 +1,23 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=intel-ucode
+srcdir=$PWD
+
+build() {
+    cd Intel-Linux-Processor-Microcode-Data-Files-microcode-$pkgver
+    mkdir -p early/kernel/x86/microcode
+    cat intel-ucode/* > early/kernel/x86/microcode/GenuineIntel.bin
+    (cd early && find . | LC_ALL=C sort | cpio --quiet -o -H newc --reproducible) > intel-ucode.img
+}
+
+package() {
+    cd Intel-Linux-Processor-Microcode-Data-Files-microcode-$pkgver
+    install -Dm644 intel-ucode.img "$pkgdir/boot/intel-ucode.img"
+    install -Dm644 license "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}
+
+build
+cd "$srcdir"
+package

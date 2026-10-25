@@ -1,0 +1,2 @@
+https://gitlab.freedesktop.org/api/v4/projects/890/packages/generic/fontconfig/%VERSION%/fontconfig-%VERSION%.tar.xz fontconfig-%VERSION%
+files/50-fontconfig

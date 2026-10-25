@@ -1,0 +1,15 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=jadeos-installer
+srcdir=$PWD
+
+package() {
+    cp -a "$srcdir/files/." "$pkgdir/"
+    chmod -R u=rwX,go=rX "$pkgdir"
+    chmod 755 "$pkgdir/usr/bin/jadeos-installer" "$pkgdir/usr/lib/jadeos/installer/post-install"
+}
+
+cd "$srcdir"
+package

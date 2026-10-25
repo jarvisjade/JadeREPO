@@ -1,0 +1,3 @@
+description: Library for creating and utilizing caches of freedesktop.org application menus
+url: https://github.com/lxde/menu-cache
+license: LGPL-2.1-or-later

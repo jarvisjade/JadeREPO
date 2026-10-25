@@ -1,0 +1,6 @@
+glibc
+openssl
+zlib
+zstd
+ca-certificates
+pkgconf make

@@ -1,0 +1,28 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=openssl
+srcdir=$PWD
+
+build() {
+    cd openssl-$pkgver
+    ./Configure linux-x86_64 \
+        --prefix=/usr \
+        --openssldir=/etc/ssl \
+        --libdir=lib \
+        shared zlib enable-ktls no-ssl3-method no-tests \
+        "$CFLAGS" "$LDFLAGS"
+    make depend
+    make
+}
+
+package() {
+    cd openssl-$pkgver
+    make DESTDIR="$pkgdir" MANDIR=/usr/share/man MANSUFFIX=ssl install_sw install_ssldirs
+    rm -f "$pkgdir"/usr/lib/*.a
+}
+
+build
+cd "$srcdir"
+package

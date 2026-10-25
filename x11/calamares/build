@@ -1,0 +1,33 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=calamares
+srcdir=$PWD
+
+build() {
+    cd calamares-$pkgver
+    cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=None -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_INSTALL_LIBDIR=lib -DCMAKE_INSTALL_LIBEXECDIR=lib -DCMAKE_INSTALL_SYSCONFDIR=/etc -DBUILD_TESTING=OFF \
+        -DKDE_INSTALL_LIBDIR=lib \
+        -DKDE_INSTALL_LIBEXECDIR=lib \
+        -DPython_EXECUTABLE=/usr/bin/python3.14 \
+        -DWITH_QT6=ON \
+        -DWITH_QML=OFF \
+        -DWITH_PYTHON=ON \
+        -DWITH_PYBIND11=ON \
+        -DINSTALL_POLKIT=OFF \
+        -DINSTALL_CONFIG=OFF \
+        -DBUILD_SCHEMA_TESTING=OFF \
+        -DBUILD_CRASH_REPORTING=OFF \
+        -DSKIP_MODULES="webview plasmalnf interactiveterminal tracking"
+    cmake --build build
+}
+
+package() {
+    cd calamares-$pkgver
+    DESTDIR="$pkgdir" cmake --install build
+}
+
+build
+cd "$srcdir"
+package

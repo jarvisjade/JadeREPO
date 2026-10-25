@@ -1,0 +1,8 @@
+#!/usr/bin/bash
+# See LICENSE file for copyright and license details.
+# jadeos-launcher: open the rofi application launcher.
+
+if [[ -f "${XDG_CONFIG_HOME:-$HOME/.config}/rofi/config.rasi" ]]; then
+    exec rofi -show drun "$@"
+fi
+exec rofi -show drun -show-icons -icon-theme Papirus-Dark -theme jadeos "$@"

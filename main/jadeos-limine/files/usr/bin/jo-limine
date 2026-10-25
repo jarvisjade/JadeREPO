@@ -1,0 +1,196 @@
+#!/usr/bin/bash
+# See LICENSE file for copyright and license details.
+# jo-limine: install the Limine boot loader and write its configuration.
+
+set -euo pipefail
+
+LIMINE=/usr/share/limine
+STATE=/etc/jadeos/boot.conf
+BIOS_BOOT_GUID=21686148-6449-6e6f-744e-656564454649
+
+die() {
+    printf 'jo-limine: %s\n' "$*" >&2
+    exit 1
+}
+
+warn() {
+    printf 'jo-limine: warning: %s\n' "$*" >&2
+}
+
+usage() {
+    sed -n 's/^# usage: //p; s/^#        jo-/jo-/p' "$0" >&2
+    exit 1
+}
+
+partition_number() {
+    cat "/sys/class/block/$(basename -- "$(realpath -- "$1")")/partition"
+}
+
+parent_disk() {
+    local parent
+    parent=$(lsblk -n -d -o PKNAME "$(realpath -- "$1")")
+    [[ -n "$parent" ]] || die "cannot determine the disk of $1"
+    printf '/dev/%s\n' "$parent"
+}
+
+detect() {
+    findmnt -n -o TARGET /boot >/dev/null 2>&1 ||
+        die "/boot is not a separate partition; Limine needs a FAT /boot partition"
+
+    BOOT_DEVICE=$(findmnt -n -o SOURCE /boot)
+    local boot_fstype
+    boot_fstype=$(findmnt -n -o FSTYPE /boot)
+    [[ "$boot_fstype" == vfat ]] ||
+        die "/boot is $boot_fstype; Limine reads only FAT, so /boot must be FAT32"
+
+    ROOT_DEVICE=$(findmnt -n -o SOURCE /)
+    ROOT_FSTYPE=$(findmnt -n -o FSTYPE /)
+    ROOT_UUID=$(blkid -s UUID -o value "$ROOT_DEVICE" || true)
+    [[ -n "$ROOT_UUID" ]] || die "cannot read the UUID of the root filesystem ($ROOT_DEVICE)"
+
+    DISK=$(parent_disk "$BOOT_DEVICE")
+
+    FIRMWARE=bios
+    [[ -d /sys/firmware/efi ]] && FIRMWARE=efi
+    "detect_esp_$FIRMWARE"
+
+    BIOS_PARTITION=""
+    if [[ "$FIRMWARE" == bios && "$(blkid -s PTTYPE -o value "$DISK" || true)" == gpt ]]; then
+        local name type
+        while read -r name type; do
+            if [[ "${type,,}" == "$BIOS_BOOT_GUID" ]]; then
+                BIOS_PARTITION=$(partition_number "/dev/$name")
+                break
+            fi
+        done < <(lsblk -n -r -o NAME,PARTTYPE "$DISK")
+        [[ -n "$BIOS_PARTITION" ]] ||
+            die "$DISK uses GPT on a BIOS system but has no BIOS boot partition"
+    fi
+}
+
+write_state() {
+    install -d -m 755 /etc/jadeos
+    cat > "$STATE.new" <<EOF
+# Written by jo-limine install; read by jo-limine update.
+FIRMWARE=$FIRMWARE
+DISK=$DISK
+BIOS_PARTITION=$BIOS_PARTITION
+ESP=$ESP
+EOF
+    mv -f "$STATE.new" "$STATE"
+}
+
+write_config() {
+    local config=/boot/limine/limine.conf
+    local kernel name label ucode entries=0 level need kernels=()
+    install -d /boot/limine
+
+    level=$(jo-cpu-level)
+    level=${level/#x86-64-v/}
+    level=${level/#x86-64/1}
+    mapfile -t kernels < <(
+        for kernel in /boot/vmlinuz-*; do
+            need=1
+            [[ $kernel == *-v[23] ]] && need=${kernel##*-v}
+            printf '%d %s\n' $((need <= level ? need : need - 10)) "$kernel"
+        done | sort -rn | cut -d' ' -f2-
+    )
+
+    {
+        printf '# Limine configuration written by jo-limine. /boot is a FAT partition,\n'
+        printf '# so boot():/ refers to its root.\n'
+        printf 'timeout: 5\n'
+        printf 'interface_branding: JadeOS\n'
+        for kernel in "${kernels[@]}"; do
+            name=${kernel#/boot/vmlinuz-}
+            [[ -f "/boot/initramfs-$name.img" ]] || continue
+            label=$name
+            [[ "$name" == *-v[23] && "${name##*-v}" -gt "$level" ]] &&
+                label="$name, needs an x86-64-v${name##*-v} CPU"
+            printf '\n/JadeOS (%s)\n' "$label"
+            printf '    protocol: linux\n'
+            printf '    path: boot():/vmlinuz-%s\n' "$name"
+            for ucode in amd-ucode.img intel-ucode.img; do
+                if [[ -f "/boot/$ucode" ]]; then
+                    printf '    module_path: boot():/%s\n' "$ucode"
+                fi
+            done
+            printf '    module_path: boot():/initramfs-%s.img\n' "$name"
+            printf '    cmdline: root=UUID=%s rootfstype=%s ro quiet\n' "$ROOT_UUID" "$ROOT_FSTYPE"
+            entries=$((entries + 1))
+        done
+    } > "$config.new"
+
+    [[ "$entries" -gt 0 ]] || { rm -f "$config.new"; die "no kernel with an initramfs found in /boot"; }
+    mv -f "$config.new" "$config"
+    printf 'jo-limine: wrote %s (%d entries)\n' "$config" "$entries"
+}
+
+detect_esp_efi() {
+    ESP=/boot
+    findmnt -n -o TARGET /boot/efi >/dev/null 2>&1 && ESP=/boot/efi
+    [[ "$(findmnt -n -o FSTYPE "$ESP")" == vfat ]] || die "the EFI system partition ($ESP) is not FAT"
+}
+
+detect_esp_bios() {
+    ESP=""
+}
+
+install_boot_efi() {
+    install -D -m 644 "$LIMINE/BOOTX64.EFI" "$ESP/EFI/BOOT/BOOTX64.EFI"
+    install -D -m 644 "$LIMINE/BOOTX64.EFI" "$ESP/EFI/JadeOS/BOOTX64.EFI"
+    printf 'jo-limine: installed BOOTX64.EFI on %s\n' "$ESP"
+}
+
+install_boot_bios() {
+    limine bios-install "$DISK" ${BIOS_PARTITION:+"$BIOS_PARTITION"}
+    printf 'jo-limine: installed the BIOS boot sector on %s\n' "$DISK"
+}
+
+install_binaries() {
+    install -d /boot/limine
+    install -m 644 "$LIMINE/limine-bios.sys" /boot/limine/limine-bios.sys
+    "install_boot_$FIRMWARE"
+}
+
+register_efi_entry() {
+    command -v efibootmgr >/dev/null 2>&1 || { warn "efibootmgr not found; relying on EFI/BOOT/BOOTX64.EFI"; return 0; }
+
+    local esp_device esp_disk esp_part number
+    esp_device=$(findmnt -n -o SOURCE "$ESP")
+    esp_disk=$(parent_disk "$esp_device")
+    esp_part=$(partition_number "$esp_device")
+
+    while read -r number; do
+        efibootmgr --quiet --bootnum "$number" --delete-bootnum || true
+    done < <(efibootmgr 2>/dev/null | sed -n 's/^Boot\([0-9A-Fa-f]\{4\}\)\*\? JadeOS.*/\1/p')
+
+    efibootmgr --quiet --create --disk "$esp_disk" --part "$esp_part" \
+        --loader '\EFI\JadeOS\BOOTX64.EFI' --label JadeOS || {
+        warn "could not add a firmware boot entry; the fallback EFI/BOOT/BOOTX64.EFI is installed"
+        return 0
+    }
+    printf 'jo-limine: added the "JadeOS" firmware boot entry\n'
+}
+
+case "${1:-}" in
+    install)
+        detect
+        write_config
+        install_binaries
+        [[ "$FIRMWARE" == efi ]] && register_efi_entry
+        write_state
+        ;;
+    config)
+        detect
+        write_config
+        ;;
+    update)
+        [[ -f "$STATE" ]] || { warn "$STATE not found; Limine was not installed by jo-limine"; exit 0; }
+        . "$STATE"
+        install_binaries
+        ;;
+    *)
+        usage
+        ;;
+esac

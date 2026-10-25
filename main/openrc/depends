@@ -1,0 +1,8 @@
+glibc
+bash
+psmisc
+kbd
+libcap
+meson make
+ninja make
+pkgconf make

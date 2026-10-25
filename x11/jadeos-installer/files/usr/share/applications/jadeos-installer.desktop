@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Install JadeOS
+GenericName=System Installer
+Comment=Install JadeOS on this computer
+Exec=jadeos-installer
+Icon=/etc/calamares/branding/jadeos/logo.svg
+Terminal=false
+Categories=System;
+Keywords=install;installer;calamares;

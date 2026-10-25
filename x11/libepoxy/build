@@ -1,0 +1,26 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=libepoxy
+srcdir=$PWD
+
+build() {
+    cd libepoxy-$pkgver
+    meson setup build --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=lib --libexecdir=lib --sbindir=bin --buildtype=plain --wrap-mode=nofallback \
+        -Dglx=yes \
+        -Degl=yes \
+        -Dx11=true \
+        -Ddocs=false \
+        -Dtests=false
+    meson compile -C build
+}
+
+package() {
+    cd libepoxy-$pkgver
+    meson install -C build --destdir "$pkgdir"
+}
+
+build
+cd "$srcdir"
+package

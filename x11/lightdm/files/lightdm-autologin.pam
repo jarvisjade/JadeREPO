@@ -1,0 +1,10 @@
+#%PAM-1.0
+# JadeOS: LightDM automatic logins.
+auth      required  pam_shells.so
+auth      requisite pam_nologin.so
+auth      required  pam_env.so
+auth      required  pam_permit.so
+account   include   system-login
+password  required  pam_deny.so
+session   include   system-login
+-session  optional  pam_elogind.so

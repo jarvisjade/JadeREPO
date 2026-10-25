@@ -1,0 +1,35 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=librsvg
+srcdir=$PWD
+
+build() {
+    cd librsvg-$pkgver
+    export CARGO_HOME="$srcdir/cargo-home"
+    export CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER="$CC"
+    export CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUSTFLAGS="-C target-cpu=x86-64 -L native=$PWD/build/rsvg"
+    export PKG_CONFIG_ALLOW_CROSS=1
+    meson setup build --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=lib --libexecdir=lib --sbindir=bin --buildtype=plain --wrap-mode=nofallback \
+        -Dtriplet=x86_64-unknown-linux-gnu \
+        -Dintrospection=disabled \
+        -Dvala=disabled \
+        -Ddocs=disabled \
+        -Dtests=false \
+        -Davif=disabled \
+        -Dpixbuf=enabled \
+        -Dpixbuf-loader=enabled \
+        -Drsvg-convert=enabled
+    meson compile -C build
+}
+
+package() {
+    cd librsvg-$pkgver
+    meson install -C build --destdir "$pkgdir"
+    rm -rf "$pkgdir/usr/share/doc"
+}
+
+build
+cd "$srcdir"
+package

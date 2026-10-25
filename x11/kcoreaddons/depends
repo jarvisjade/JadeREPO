@@ -1,0 +1,8 @@
+glibc
+gcc
+qt6-base
+util-linux
+eudev
+cmake make
+ninja make
+pkgconf make

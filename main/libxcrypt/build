@@ -1,0 +1,22 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=libxcrypt
+srcdir=$PWD
+
+build() {
+    cd libxcrypt-4.5.2
+    ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=/usr/lib --libexecdir=/usr/lib --sbindir=/usr/bin --disable-static --enable-hashes=strong,glibc --enable-obsolete-api=no --disable-failure-tokens --disable-werror
+    make
+}
+
+package() {
+    cd libxcrypt-4.5.2
+    make DESTDIR="$pkgdir" install
+    rm -rf "$pkgdir/usr/share/info" "$pkgdir/usr/share/doc"
+}
+
+build
+cd "$srcdir"
+package

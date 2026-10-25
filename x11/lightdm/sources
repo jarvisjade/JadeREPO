@@ -1,0 +1,5 @@
+https://github.com/canonical/lightdm/releases/download/%VERSION%/lightdm-%VERSION%.tar.xz lightdm-%VERSION%
+files/lightdm.pam
+files/lightdm-greeter.pam
+files/lightdm-autologin.pam
+files/Xsession

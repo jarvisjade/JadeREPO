@@ -1,0 +1,34 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=curl
+srcdir=$PWD
+
+build() {
+    cd curl-$pkgver
+    ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=/usr/lib --libexecdir=/usr/lib --sbindir=/usr/bin --disable-static \
+        --with-openssl \
+        --with-zlib \
+        --with-zstd \
+        --without-libpsl \
+        --without-libidn2 \
+        --without-nghttp2 \
+        --without-brotli \
+        --disable-ldap \
+        --disable-manual \
+        --enable-ipv6 \
+        --enable-threaded-resolver \
+        --with-ca-bundle=/etc/ssl/certs/ca-certificates.crt
+    make
+}
+
+package() {
+    cd curl-$pkgver
+    make DESTDIR="$pkgdir" install
+    rm -rf "$pkgdir/usr/share/doc"
+}
+
+build
+cd "$srcdir"
+package

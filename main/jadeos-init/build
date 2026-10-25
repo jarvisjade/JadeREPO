@@ -1,0 +1,20 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=jadeos-init
+srcdir=$PWD
+
+package() {
+    install -d "$pkgdir/usr/bin"
+    ln -s openrc-init "$pkgdir/usr/bin/init"
+    install -m755 "$srcdir/files/usr/bin/jo-power" "$srcdir/files/usr/bin/shutdown" \
+        "$srcdir/files/usr/bin/hostname" "$pkgdir/usr/bin/"
+    local name
+    for name in poweroff reboot halt; do
+        ln -s jo-power "$pkgdir/usr/bin/$name"
+    done
+}
+
+cd "$srcdir"
+package

@@ -1,0 +1,25 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=ki18n
+srcdir=$PWD
+
+build() {
+    cd ki18n-$pkgver
+    cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=None -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_INSTALL_LIBDIR=lib -DCMAKE_INSTALL_LIBEXECDIR=lib -DCMAKE_INSTALL_SYSCONFDIR=/etc -DBUILD_TESTING=OFF \
+        -DKDE_INSTALL_LIBDIR=lib \
+        -DKDE_INSTALL_LIBEXECDIR=lib \
+        -DBUILD_QCH=OFF \
+        -DBUILD_WITH_QML=OFF
+    cmake --build build
+}
+
+package() {
+    cd ki18n-$pkgver
+    DESTDIR="$pkgdir" cmake --install build
+}
+
+build
+cd "$srcdir"
+package

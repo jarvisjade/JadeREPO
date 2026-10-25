@@ -1,0 +1,22 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=less
+srcdir=$PWD
+
+build() {
+    cd less-710
+    ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=/usr/lib --libexecdir=/usr/lib --sbindir=/usr/bin --disable-static --with-regex=posix
+    make
+}
+
+package() {
+    cd less-710
+    make DESTDIR="$pkgdir" install
+    rm -rf "$pkgdir/usr/share/info" "$pkgdir/usr/share/doc"
+}
+
+build
+cd "$srcdir"
+package

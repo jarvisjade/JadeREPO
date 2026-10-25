@@ -1,0 +1,32 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=openrc
+srcdir=$PWD
+
+build() {
+    cd openrc-$pkgver
+    meson setup build --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=lib --libexecdir=lib --sbindir=bin --buildtype=plain --wrap-mode=nofallback \
+        -Dbranding='"JadeOS"' \
+        -Dpam=false \
+        -Dselinux=disabled \
+        -Daudit=disabled \
+        -Dbash-completions=false \
+        -Dzsh-completions=false \
+        -Dsysvinit=false \
+        -Dshell=/usr/bin/sh
+    meson compile -C build
+}
+
+package() {
+    cd openrc-$pkgver
+    meson install -C build --destdir "$pkgdir"
+    sed -i 's/^#\?unicode=.*/unicode="YES"/' "$pkgdir/etc/rc.conf"
+    sed -i 's/^hostname=.*/hostname="jadeos"/' "$pkgdir/etc/conf.d/hostname" 2>/dev/null || true
+    rm -rf "$pkgdir/usr/share/doc"
+}
+
+build
+cd "$srcdir"
+package

@@ -1,0 +1,42 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=polkit
+srcdir=$PWD
+
+build() {
+    cd polkit-$pkgver
+    meson setup build --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=lib --libexecdir=lib --sbindir=bin --buildtype=plain --wrap-mode=nofallback \
+        -Dsession_tracking=elogind \
+        -Dsystemdsystemunitdir=/tmp/polkit-no-systemd \
+        -Dpolkitd_user=polkitd \
+        -Dpolkitd_uid=102 \
+        -Dauthfw=pam \
+        -Dpam_include=system-auth \
+        -Dpam_module_dir=/usr/lib/security \
+        -Dintrospection=false \
+        -Dexamples=false \
+        -Dtests=false \
+        -Dgtk_doc=false \
+        -Dman=false \
+        -Dgettext=false
+    meson compile -C build
+}
+
+package() {
+    cd polkit-$pkgver
+    meson install -C build --destdir "$pkgdir"
+    rm -rf "$pkgdir/tmp" "$pkgdir/usr/lib/sysusers.d" "$pkgdir/usr/lib/tmpfiles.d"
+    install -d "$pkgdir/etc/polkit-1/rules.d"
+    chown root:root "$pkgdir/etc/polkit-1/rules.d"
+    chmod 755 "$pkgdir/etc/polkit-1/rules.d" "$pkgdir/usr/share/polkit-1/rules.d"
+    chmod 4755 "$pkgdir/usr/bin/pkexec" "$pkgdir/usr/lib/polkit-1/polkit-agent-helper-1"
+    install -Dm644 /dev/stdin "$pkgdir/usr/lib/sysusers.d/polkit.conf" <<'SYSUSERS'
+u polkitd 102 "PolicyKit daemon"
+SYSUSERS
+}
+
+build
+cd "$srcdir"
+package

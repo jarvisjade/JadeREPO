@@ -1,0 +1,5 @@
+glibc
+acl
+attr
+libxcrypt
+pkgconf make

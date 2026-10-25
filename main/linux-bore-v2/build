@@ -1,0 +1,23 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=linux-bore-v2
+srcdir=$PWD
+
+cpu_level=x86-64-v2
+localversion=-bore-jade-v2
+
+build() {
+    source "$srcdir/kernel/linux-bore-build.sh"
+    kernel_build
+}
+
+package() {
+    source "$srcdir/kernel/linux-bore-build.sh"
+    kernel_package
+}
+
+build
+cd "$srcdir"
+package

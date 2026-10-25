@@ -1,0 +1,6 @@
+glibc
+libxcb
+xkeyboard-config
+meson make
+ninja make
+pkgconf make

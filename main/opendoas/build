@@ -1,0 +1,27 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=opendoas
+srcdir=$PWD
+
+build() {
+    cd opendoas-$pkgver
+    ./configure --prefix=/usr --sysconfdir=/etc --with-timestamp
+    make YACC="bison -y"
+}
+
+package() {
+    cd opendoas-$pkgver
+    install -Dm4755 doas "$pkgdir/usr/bin/doas"
+    install -Dm644 pam.d__doas__linux "$pkgdir/etc/pam.d/doas"
+    install -Dm644 doas.1 "$pkgdir/usr/share/man/man1/doas.1"
+    install -Dm644 doas.conf.5 "$pkgdir/usr/share/man/man5/doas.conf.5"
+    install -Dm400 /dev/stdin "$pkgdir/etc/doas.conf" <<'CONF'
+permit persist :wheel
+CONF
+}
+
+build
+cd "$srcdir"
+package

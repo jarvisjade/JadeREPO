@@ -1,0 +1,29 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=libxt
+srcdir=$PWD
+
+build() {
+    cd libXt-$pkgver
+    ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=/usr/lib --libexecdir=/usr/lib --sbindir=/usr/bin --disable-static \
+        --disable-specs \
+        --without-xmlto \
+        --without-fop \
+        --without-xsltproc \
+        --disable-unit-tests \
+        --disable-malloc0returnsnull \
+        --with-appdefaultdir=/usr/share/X11/app-defaults
+    make
+}
+
+package() {
+    cd libXt-$pkgver
+    make DESTDIR="$pkgdir" install
+    rm -rf "$pkgdir/usr/share/doc"
+}
+
+build
+cd "$srcdir"
+package

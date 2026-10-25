@@ -1,0 +1,27 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=libxklavier
+srcdir=$PWD
+
+build() {
+    cd libxklavier-$pkgver
+    CFLAGS="$CFLAGS -std=gnu17" ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=/usr/lib --libexecdir=/usr/lib --sbindir=/usr/bin --disable-static \
+        --disable-introspection \
+        --disable-gtk-doc \
+        --disable-vala \
+        --with-xkb-base=/usr/share/X11/xkb \
+        --with-xkb-bin-base=/usr/bin
+    make
+}
+
+package() {
+    cd libxklavier-$pkgver
+    make DESTDIR="$pkgdir" install
+    rm -rf "$pkgdir/usr/share/gtk-doc"
+}
+
+build
+cd "$srcdir"
+package

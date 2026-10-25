@@ -1,0 +1,26 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=rsync
+srcdir=$PWD
+
+build() {
+    cd rsync-$pkgver
+    ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=/usr/lib --libexecdir=/usr/lib --sbindir=/usr/bin --disable-static \
+        --with-included-zlib=no \
+        --with-included-popt=no \
+        --disable-xxhash \
+        --disable-lz4 \
+        --disable-md2man
+    make
+}
+
+package() {
+    cd rsync-$pkgver
+    make DESTDIR="$pkgdir" install
+}
+
+build
+cd "$srcdir"
+package

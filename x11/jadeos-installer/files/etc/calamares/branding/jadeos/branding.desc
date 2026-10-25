@@ -1,0 +1,36 @@
+# Calamares branding for JadeOS.
+---
+componentName:  jadeos
+
+welcomeStyleCalamares:   false
+welcomeExpandingLogo:    true
+windowExpanding:    normal
+windowSize: 900px,600px
+windowPlacement: center
+sidebar: widget
+navigation: widget
+
+strings:
+    productName:         "JadeOS"
+    shortProductName:    "JadeOS"
+    version:             "rolling"
+    shortVersion:        "rolling"
+    versionedName:       "JadeOS (rolling)"
+    shortVersionedName:  "JadeOS"
+    bootloaderEntryName: "JadeOS"
+
+images:
+    productIcon:         "logo.svg"
+    productLogo:         "logo.svg"
+    productWelcome:      "welcome.jpg"
+
+style:
+   SidebarBackground:        "#0b1f17"
+   SidebarText:              "#e6f5ee"
+   SidebarTextCurrent:       "#0b1f17"
+   SidebarBackgroundCurrent: "#00a86b"
+
+slideshow:
+    - "slide1.png"
+    - "slide2.png"
+    - "slide3.png"

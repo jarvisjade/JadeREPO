@@ -1,0 +1,20 @@
+#!/usr/bin/bash
+# See LICENSE file for copyright and license details.
+# jo-cpu-level: print this CPU's x86-64 level, or with --kernel its kernel.
+
+declare -A column=([-]=1 [--kernel]=2)
+levels=(
+	"x86-64-v3 linux-bore-v3"
+	"x86-64-v2 linux-bore-v2"
+	"x86-64 linux-bore"
+)
+
+[[ $# -le 1 && -n ${column[${1:--}]} ]] || {
+	echo "usage: jo-cpu-level [--kernel]" >&2
+	exit 2
+}
+supported=$(/usr/lib/ld-linux-x86-64.so.2 --help 2>/dev/null)
+for entry in "${levels[@]}"; do
+	grep -q "${entry%% *} (supported" <<<"$supported" && break
+done
+cut -d' ' -f"${column[${1:--}]}" <<<"$entry"

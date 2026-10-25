@@ -1,0 +1,11 @@
+glibc
+libcap
+util-linux
+eudev
+linux-pam
+acl
+dbus
+openrc
+meson make
+ninja make
+pkgconf make

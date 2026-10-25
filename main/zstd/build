@@ -1,0 +1,23 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=zstd
+srcdir=$PWD
+
+build() {
+    cd zstd-$pkgver
+    make PREFIX=/usr LIBDIR=/usr/lib HAVE_LZ4=0 lib-mt
+    make -C programs PREFIX=/usr HAVE_LZ4=0 zstd
+}
+
+package() {
+    cd zstd-$pkgver
+    make -C lib PREFIX=/usr LIBDIR=/usr/lib DESTDIR="$pkgdir" install-shared install-includes install-pc
+    make -C programs PREFIX=/usr DESTDIR="$pkgdir" HAVE_LZ4=0 install
+    rm -rf "$pkgdir/usr/share/man"
+}
+
+build
+cd "$srcdir"
+package

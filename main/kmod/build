@@ -1,0 +1,33 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=kmod
+srcdir=$PWD
+
+build() {
+    cd kmod-$pkgver
+    meson setup build --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=lib --libexecdir=lib --sbindir=bin --buildtype=plain --wrap-mode=nofallback \
+        -Dmanpages=false \
+        -Ddocs=false \
+        -Dzstd=enabled \
+        -Dxz=enabled \
+        -Dzlib=enabled \
+        -Dopenssl=enabled \
+        -Dbashcompletiondir=no \
+        -Dfishcompletiondir=no \
+        -Dzshcompletiondir=no
+    meson compile -C build
+}
+
+package() {
+    cd kmod-$pkgver
+    meson install -C build --destdir "$pkgdir"
+    install -d "$pkgdir/etc/modprobe.d" "$pkgdir/etc/depmod.d" "$pkgdir/usr/lib/modprobe.d"
+    install -Dm644 "$srcdir/60-depmod" "$pkgdir/usr/share/gemstone/triggers/60-depmod"
+    install -Dm755 "$srcdir/jo-depmod" "$pkgdir/usr/lib/kmod/jo-depmod"
+}
+
+build
+cd "$srcdir"
+package

@@ -1,0 +1,5 @@
+glibc
+libxcrypt
+meson make
+ninja make
+pkgconf make

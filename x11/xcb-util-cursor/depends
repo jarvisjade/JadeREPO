@@ -1,0 +1,6 @@
+glibc
+libxcb
+xcb-util
+xcb-util-image
+xcb-util-renderutil
+pkgconf make

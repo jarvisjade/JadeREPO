@@ -1,0 +1,43 @@
+#!/usr/bin/bash
+# See LICENSE file for copyright and license details.
+# jo-sysusers: create the system users and groups that packages declare.
+
+set -euo pipefail
+
+user() {
+	local name=$1 id=$2 gecos=$3 home=${4:--} shell=${5:-}
+	getent passwd "$name" >/dev/null && return 0
+	[[ "$home" == - ]] && home=/
+	[[ -n "$shell" ]] || shell=/usr/bin/nologin
+	getent group "$name" >/dev/null || group "$name" "$id"
+	local args=(--system --no-create-home --gid "$name" --home-dir "$home" --shell "$shell" --comment "$gecos")
+	[[ "$id" == - ]] || args+=(--uid "$id")
+	useradd "${args[@]}" "$name"
+}
+
+group() {
+	local name=$1 id=$2
+	getent group "$name" >/dev/null && return 0
+	local args=(--system)
+	[[ "$id" == - ]] || args+=(--gid "$id")
+	groupadd "${args[@]}" "$name"
+}
+
+member() {
+	getent group "$2" >/dev/null || group "$2" -
+	id -nG "$1" 2>/dev/null | tr ' ' '\n' | grep -qx "$2" || usermod -aG "$2" "$1"
+}
+
+shopt -s nullglob
+for conf in /usr/lib/sysusers.d/*.conf /etc/sysusers.d/*.conf; do
+	while read -r line; do
+		[[ -n "$line" && "$line" != \#* ]] || continue
+		eval "fields=($line)"
+		case "${fields[0]}" in
+		u) user "${fields[1]}" "${fields[2]}" "${fields[3]:-}" "${fields[4]:--}" "${fields[5]:-}" ;;
+		g) group "${fields[1]}" "${fields[2]}" ;;
+		m) member "${fields[1]}" "${fields[2]}" ;;
+		*) printf 'jo-sysusers: %s: unsupported line: %s\n' "$conf" "$line" >&2 ;;
+		esac
+	done < "$conf"
+done

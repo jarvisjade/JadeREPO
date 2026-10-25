@@ -1,0 +1,4 @@
+path usr/lib/*.so*
+path etc/ld.so.conf
+path etc/ld.so.conf.d/*
+run /usr/bin/ldconfig

@@ -1,0 +1,3 @@
+description: JPEG image codec with accelerated baseline compression and decompression
+url: https://libjpeg-turbo.org/
+license: IJG BSD-3-Clause

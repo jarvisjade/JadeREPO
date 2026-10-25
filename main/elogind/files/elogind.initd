@@ -1,0 +1,13 @@
+#!/usr/bin/openrc-run
+# See LICENSE file for copyright and license details.
+# JadeOS: elogind, the logind (login, seat and power management) service.
+
+description="elogind login and seat manager"
+command=/usr/lib/elogind/elogind
+command_args="--daemon"
+pidfile=/run/elogind.pid
+
+depend() {
+	need dbus
+	use logger
+}

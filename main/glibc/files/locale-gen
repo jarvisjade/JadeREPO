@@ -1,0 +1,42 @@
+#!/usr/bin/bash
+# See LICENSE file for copyright and license details.
+# locale-gen - compile the locales listed in /etc/locale.gen into
+# /usr/lib/locale. Each uncommented line is "<locale> <charset>", as in
+# /usr/share/i18n/SUPPORTED (for example "en_US.UTF-8 UTF-8").
+
+set -euo pipefail
+
+# localedef --no-archive writes one directory per locale here.
+mkdir -p /usr/lib/locale
+
+# glibc stores a locale under its normalized name: the codeset lowercased
+# without punctuation (en_US.UTF-8 -> en_US.utf8).
+normalized() {
+	local name=$1 base codeset modifier=""
+	[[ "$name" == *@* ]] && modifier="@${name#*@}" name=${name%%@*}
+	[[ "$name" == *.* ]] || { printf '%s%s\n' "$name" "$modifier"; return; }
+	base=${name%%.*}
+	codeset=${name#*.}
+	codeset=${codeset,,}
+	codeset=${codeset//[^a-z0-9]/}
+	printf '%s.%s%s\n' "$base" "$codeset" "$modifier"
+}
+
+status=0
+while read -r name charset _; do
+	[[ -n "$name" && "$name" != \#* ]] || continue
+	input=${name%%.*}
+	input=${input%%@*}
+	modifier=""
+	[[ "$name" == *@* ]] && modifier="@${name#*@}"
+	printf '  %s...\n' "$name"
+	# Exit status 1 means warnings only (-c still writes the locale).
+	rc=0
+	localedef --no-archive -i "$input$modifier" -c -f "$charset" \
+		-A /usr/share/locale/locale.alias "$name" || rc=$?
+	if [[ $rc -gt 1 || ! -d "/usr/lib/locale/$(normalized "$name")" ]]; then
+		printf 'locale-gen: %s failed\n' "$name" >&2
+		status=1
+	fi
+done < /etc/locale.gen
+exit "$status"

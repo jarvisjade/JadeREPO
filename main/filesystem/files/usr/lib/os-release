@@ -1,0 +1,6 @@
+NAME="JadeOS"
+PRETTY_NAME="JadeOS"
+ID=jadeos
+BUILD_ID=rolling
+ANSI_COLOR="38;2;0;168;107"
+LOGO=jadeos

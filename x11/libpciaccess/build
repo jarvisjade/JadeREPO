@@ -1,0 +1,23 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=libpciaccess
+srcdir=$PWD
+
+build() {
+    cd libpciaccess-$pkgver
+    meson setup build --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=lib --libexecdir=lib --sbindir=bin --buildtype=plain --wrap-mode=nofallback \
+        -Dpci-ids=/usr/share/hwdata \
+        -Dzlib=enabled
+    meson compile -C build
+}
+
+package() {
+    cd libpciaccess-$pkgver
+    meson install -C build --destdir "$pkgdir"
+}
+
+build
+cd "$srcdir"
+package

@@ -1,0 +1,22 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=zlib
+srcdir=$PWD
+
+build() {
+    cd zlib-$pkgver
+    ./configure --prefix=/usr --libdir=/usr/lib
+    make
+}
+
+package() {
+    cd zlib-$pkgver
+    make DESTDIR="$pkgdir" install
+    rm -f "$pkgdir/usr/lib/libz.a"
+}
+
+build
+cd "$srcdir"
+package

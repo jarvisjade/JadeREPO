@@ -1,0 +1,186 @@
+#!/usr/bin/bash
+# See LICENSE file for copyright and license details.
+# jo-mkinitramfs - build the JadeOS initramfs.
+
+set -euo pipefail
+
+INIT=/usr/lib/jadeos/initramfs/init
+
+BINARIES=(bash mount umount switch_root blkid modprobe mkdir sleep cat ls ln)
+
+MODULES=(
+    squashfs overlay isofs loop
+    sr_mod cdrom sd_mod ata_piix ahci nvme
+    ata_generic pata_amd pata_atiixp pata_jmicron pata_marvell pata_via
+    sata_nv sata_sil24 sata_via
+    usb_storage uas xhci_pci ehci_pci ohci_pci uhci_hcd
+    virtio_pci virtio_blk virtio_scsi
+    mmc_block sdhci_pci
+    ext4 btrfs xfs vfat nls_cp437 nls_iso8859_1
+    hid_generic usbhid atkbd i8042
+)
+
+WORKDIRS=()
+trap 'rm -rf -- "${WORKDIRS[@]}"' EXIT
+
+die() {
+    printf 'jo-mkinitramfs: %s\n' "$*" >&2
+    exit 1
+}
+
+usage() {
+    sed -n 's/^# usage: //p; s/^#        jo-/jo-/p' "$0" >&2
+    exit 1
+}
+
+copy_file() {
+    local source=$1 work=$2
+    local target="$work$source"
+    [[ -e "$target" ]] && return 0
+    mkdir -p "$(dirname -- "$target")"
+    cp -a "$source" "$target"
+}
+
+add_binary() {
+    local name=$1 work=$2
+    local path real
+    path=$(command -v "$name") || die "required program not found: $name"
+    real=$(realpath -- "$path")
+
+    copy_file "$real" "$work"
+    if [[ ! -e "$work$path" ]]; then
+        mkdir -p "$work$(dirname -- "$path")"
+        ln -s "$(realpath --relative-to="$(dirname -- "$path")" "$real")" "$work$path"
+    fi
+
+    local line library
+    while read -r line; do
+        library=$(awk '{ for (i = 1; i <= NF; ++i) if ($i ~ /^\//) { print $i; exit } }' <<< "$line")
+        [[ -n "$library" ]] || continue
+        copy_file "$(realpath -- "$library")" "$work"
+        if [[ ! -e "$work$library" ]]; then
+            mkdir -p "$work$(dirname -- "$library")"
+            ln -s "$(realpath -- "$library")" "$work$library"
+        fi
+    done < <(ldd "$real" 2>/dev/null || true)
+}
+
+build() {
+    local kver=$1 output=$2
+    local moddir="/usr/lib/modules/$kver"
+    [[ -d "$moddir" ]] || die "no modules for kernel $kver"
+    [[ -f "$INIT" ]] || die "missing $INIT"
+
+    local work
+    work=$(mktemp -d /tmp/jo-initramfs.XXXXXX)
+    WORKDIRS+=("$work")
+
+    mkdir -p "$work"/{usr/bin,usr/lib,dev,proc,sys,run,new,etc}
+    ln -s usr/bin "$work/bin"
+    ln -s usr/bin "$work/sbin"
+    ln -s usr/lib "$work/lib"
+    ln -s usr/lib "$work/lib64"
+    ln -s bin "$work/usr/sbin"
+
+    local name
+    for name in "${BINARIES[@]}"; do
+        add_binary "$name" "$work"
+    done
+
+    local module line loaded=()
+    for module in "${MODULES[@]}"; do
+        while read -r line; do
+            case "$line" in
+                insmod\ *)
+                    copy_file "${line#insmod }" "$work"
+                    ;;
+            esac
+        done < <(modprobe -S "$kver" --show-depends "$module" 2>/dev/null || true)
+        if modprobe -S "$kver" --show-depends "$module" >/dev/null 2>&1; then
+            loaded+=("$module")
+        fi
+    done
+
+    for name in modules.order modules.builtin modules.builtin.modinfo; do
+        [[ -f "$moddir/$name" ]] && copy_file "$moddir/$name" "$work"
+    done
+    depmod -b "$work" "$kver"
+
+    printf '%s\n' "${loaded[@]}" > "$work/etc/initramfs-modules"
+    printf '%s\n' "$kver" > "$work/etc/initramfs-kernel"
+    install -m755 "$INIT" "$work/init"
+
+    mkdir -p "$(dirname -- "$output")"
+    (
+        cd "$work"
+        find . -print0 | LC_ALL=C sort -z |
+            cpio --null --create --format=newc --quiet --reproducible
+    ) | zstd -q -19 -T4 > "$output.tmp"
+    mv -f "$output.tmp" "$output"
+    printf 'jo-mkinitramfs: %s (kernel %s)\n' "$output" "$kver"
+}
+
+pkgbase_of() {
+    local kver=$1
+    cat "/usr/lib/modules/$kver/pkgbase" 2>/dev/null || printf 'linux-%s\n' "$kver"
+}
+
+install_kernel() {
+    local kver=$1 pkgbase
+    pkgbase=$(pkgbase_of "$kver")
+    install -Dm644 "/usr/lib/modules/$kver/vmlinuz" "/boot/vmlinuz-$pkgbase"
+    build "$kver" "/boot/initramfs-$pkgbase.img"
+}
+
+installed_kernels() {
+    local vmlinuz
+    for vmlinuz in /usr/lib/modules/*/vmlinuz; do
+        [[ -f "$vmlinuz" ]] && basename -- "$(dirname -- "$vmlinuz")"
+    done
+    return 0
+}
+
+remove_stale() {
+    local image pkgbase kver keep
+    for image in /boot/vmlinuz-*; do
+        [[ -f "$image" ]] || continue
+        pkgbase=${image#/boot/vmlinuz-}
+        keep=0
+        for kver in $(installed_kernels); do
+            [[ "$(pkgbase_of "$kver")" == "$pkgbase" ]] && keep=1
+        done
+        [[ $keep -eq 1 ]] || rm -f -- "$image" "/boot/initramfs-$pkgbase.img"
+    done
+    return 0
+}
+
+all_kernels() {
+    local kver
+    for kver in $(installed_kernels); do
+        install_kernel "$kver"
+    done
+}
+
+case "${1:-}" in
+    -k)
+        [[ $# -eq 4 && "$3" == -o ]] || usage
+        build "$2" "$4"
+        ;;
+    --all)
+        all_kernels
+        ;;
+    --trigger)
+        mapfile -t targets
+        remove_stale
+        mapfile -t kernels < <(printf '%s\n' "${targets[@]}" |
+            sed -n 's|^usr/lib/modules/\(.*\)/vmlinuz$|\1|p')
+        [[ ${#kernels[@]} -gt 0 ]] || mapfile -t kernels < <(installed_kernels)
+        for kver in "${kernels[@]}"; do
+            [[ -f "/usr/lib/modules/$kver/vmlinuz" ]] || continue
+            install_kernel "$kver"
+        done
+        ;;
+    *)
+        usage
+        ;;
+esac

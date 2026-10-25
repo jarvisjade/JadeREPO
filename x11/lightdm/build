@@ -1,0 +1,48 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=lightdm
+srcdir=$PWD
+
+build() {
+    cd lightdm-$pkgver
+    sed -i -e '/^GTK_DOC_CHECK/d' -e '/^YELP_HELP_INIT/d' \
+        -e '/^doc\/Makefile$/d' -e '/^help\/Makefile$/d' configure.ac
+    sed -i 's/^SUBDIRS += data po src doc help$/SUBDIRS += data po src/' Makefile.am
+    grep -q '^SUBDIRS += data po src$' Makefile.am
+    intltoolize --force --copy --automake
+    autoreconf -fi
+    ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=/usr/lib --libexecdir=/usr/lib --sbindir=/usr/bin --disable-static \
+        --libexecdir=/usr/lib/lightdm \
+        --disable-tests \
+        --disable-introspection \
+        --disable-vala \
+        --disable-liblightdm-qt5 \
+        --disable-liblightdm-qt6 \
+        --disable-libaudit \
+        --with-greeter-session=lightdm-gtk-greeter \
+        --with-greeter-user=lightdm \
+        --with-user-session=openbox
+    make
+}
+
+package() {
+    cd lightdm-$pkgver
+    make DESTDIR="$pkgdir" install
+    install -m644 "$srcdir/lightdm.pam" "$pkgdir/etc/pam.d/lightdm"
+    install -m644 "$srcdir/lightdm-greeter.pam" "$pkgdir/etc/pam.d/lightdm-greeter"
+    install -m644 "$srcdir/lightdm-autologin.pam" "$pkgdir/etc/pam.d/lightdm-autologin"
+    install -Dm755 "$srcdir/Xsession" "$pkgdir/etc/lightdm/Xsession"
+    sed -i 's|^#session-wrapper=.*|session-wrapper=/etc/lightdm/Xsession|' "$pkgdir/etc/lightdm/lightdm.conf"
+    grep -q '^session-wrapper=/etc/lightdm/Xsession' "$pkgdir/etc/lightdm/lightdm.conf"
+    rm -rf "$pkgdir/etc/apparmor.d" "$pkgdir/etc/init" "$pkgdir/usr/share/doc" \
+        "$pkgdir/usr/share/bash-completion"
+    install -Dm644 /dev/stdin "$pkgdir/usr/lib/sysusers.d/lightdm.conf" <<'SYSUSERS'
+u lightdm 620 "Light Display Manager" /var/lib/lightdm
+SYSUSERS
+}
+
+build
+cd "$srcdir"
+package

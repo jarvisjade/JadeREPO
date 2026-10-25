@@ -1,0 +1,14 @@
+glibc
+fontconfig
+freetype2
+libpng
+zlib
+pixman
+libx11
+libxcb
+libxext
+libxrender
+glib
+meson make
+ninja make
+pkgconf make

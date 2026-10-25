@@ -1,0 +1,27 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=shared-mime-info
+srcdir=$PWD
+
+build() {
+    cd shared-mime-info-$pkgver
+    meson setup build --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=lib --libexecdir=lib --sbindir=bin --buildtype=plain --wrap-mode=nofallback \
+        -Dupdate-mimedb=false \
+        -Dbuild-tools=true \
+        -Dbuild-translations=true \
+        -Dbuild-tests=false \
+        -Dbuild-spec=false
+    meson compile -C build
+}
+
+package() {
+    cd shared-mime-info-$pkgver
+    meson install -C build --destdir "$pkgdir"
+    install -Dm644 "$srcdir/50-mime-database" "$pkgdir/usr/share/gemstone/triggers/50-mime-database"
+}
+
+build
+cd "$srcdir"
+package

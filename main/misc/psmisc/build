@@ -1,0 +1,23 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=psmisc
+srcdir=$PWD
+
+build() {
+    cd psmisc-v23.7
+    ./autogen.sh
+    ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=/usr/lib --libexecdir=/usr/lib --sbindir=/usr/bin --disable-static --disable-nls
+    make
+}
+
+package() {
+    cd psmisc-v23.7
+    make DESTDIR="$pkgdir" install
+    rm -rf "$pkgdir/usr/share/info" "$pkgdir/usr/share/doc"
+}
+
+build
+cd "$srcdir"
+package

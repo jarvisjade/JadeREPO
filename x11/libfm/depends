@@ -1,0 +1,12 @@
+glibc
+glib
+gtk3
+gdk-pixbuf2
+pango
+cairo
+menu-cache
+libfm-extra
+shared-mime-info
+at-spi2-core
+harfbuzz
+pkgconf make

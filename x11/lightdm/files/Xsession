@@ -1,0 +1,17 @@
+#!/usr/bin/bash
+# See LICENSE file for copyright and license details.
+# JadeOS LightDM session wrapper: set up the login environment, start a
+# session D-Bus, then run the session (for example openbox-session).
+
+exec > "$HOME/.xsession-errors" 2>&1
+
+for profile in /etc/profile "$HOME/.profile" /etc/xprofile "$HOME/.xprofile"; do
+	[[ -r "$profile" ]] && . "$profile"
+done
+
+[[ -r "$HOME/.Xresources" ]] && xrdb -merge "$HOME/.Xresources"
+
+if [[ -z "$DBUS_SESSION_BUS_ADDRESS" ]] && command -v dbus-launch >/dev/null; then
+	exec dbus-launch --exit-with-session "$@"
+fi
+exec "$@"

@@ -1,0 +1,50 @@
+# JadeOS default Alacritty configuration (jade green, matching the Openbox
+# theme and polybar). Alacritty reads this file when a user has none; copy
+# it to ~/.config/alacritty/alacritty.toml to change it for one user.
+
+[window]
+padding = { x = 8, y = 6 }
+opacity = 0.96
+dynamic_title = true
+
+[font]
+normal = { family = "DejaVu Sans Mono" }
+size = 11.0
+
+[cursor]
+style = { shape = "Beam", blinking = "On" }
+
+[selection]
+save_to_clipboard = true
+
+[colors.primary]
+background = "#0b1f17"
+foreground = "#d6efe4"
+
+[colors.cursor]
+text = "#0b1f17"
+cursor = "#7dffc4"
+
+[colors.selection]
+text = "#0b1f17"
+background = "#00a86b"
+
+[colors.normal]
+black = "#0f2a20"
+red = "#e06c75"
+green = "#00a86b"
+yellow = "#d7c26b"
+blue = "#4fa3c7"
+magenta = "#b48ead"
+cyan = "#3fc1a5"
+white = "#d6efe4"
+
+[colors.bright]
+black = "#5f8a78"
+red = "#ff8a92"
+green = "#7dffc4"
+yellow = "#f0dc8a"
+blue = "#7cc4e4"
+magenta = "#d3a9cf"
+cyan = "#8ff0d8"
+white = "#ffffff"

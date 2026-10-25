@@ -1,0 +1,3 @@
+description: Low-level core library: GLib, GObject and GIO
+url: https://gitlab.gnome.org/GNOME/glib
+license: LGPL-2.1-or-later

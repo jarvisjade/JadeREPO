@@ -1,0 +1,36 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=e2fsprogs
+srcdir=$PWD
+
+build() {
+    cd e2fsprogs-$pkgver
+    mkdir -p build
+    cd build
+    ../configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=/usr/lib --libexecdir=/usr/lib --sbindir=/usr/bin --disable-static \
+        --enable-elf-shlibs \
+        --disable-libblkid \
+        --disable-libuuid \
+        --disable-uuidd \
+        --disable-fsck \
+        --disable-nls \
+        --disable-fuse2fs \
+        --with-root-prefix=/usr \
+        --with-crond-dir=no \
+        --with-systemd-unit-dir=no \
+        --with-udev-rules-dir=no
+    make
+}
+
+package() {
+    cd e2fsprogs-$pkgver/build
+    make -j1 DESTDIR="$pkgdir" install install-libs
+    rm -f "$pkgdir"/usr/lib/*.a
+    rm -rf "$pkgdir/usr/share/info"
+}
+
+build
+cd "$srcdir"
+package

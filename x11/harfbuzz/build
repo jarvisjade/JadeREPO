@@ -1,0 +1,39 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=harfbuzz
+srcdir=$PWD
+
+build() {
+    cd harfbuzz-$pkgver
+    meson setup build --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=lib --libexecdir=lib --sbindir=bin --buildtype=plain --wrap-mode=nofallback \
+        -Dglib=enabled \
+        -Dgobject=disabled \
+        -Dcairo=disabled \
+        -Dchafa=disabled \
+        -Dpng=disabled \
+        -Dzlib=disabled \
+        -Dicu=disabled \
+        -Dfreetype=enabled \
+        -Draster=disabled \
+        -Dvector=disabled \
+        -Dgpu=disabled \
+        -Dgpu_demo=disabled \
+        -Dsubset=enabled \
+        -Dtests=disabled \
+        -Dintrospection=disabled \
+        -Ddocs=disabled \
+        -Dutilities=disabled \
+        -Dbenchmark=disabled
+    meson compile -C build
+}
+
+package() {
+    cd harfbuzz-$pkgver
+    meson install -C build --destdir "$pkgdir"
+}
+
+build
+cd "$srcdir"
+package

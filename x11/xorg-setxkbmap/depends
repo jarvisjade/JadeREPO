@@ -1,0 +1,5 @@
+glibc
+libxkbfile
+libx11
+libxrandr
+pkgconf make

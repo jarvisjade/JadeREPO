@@ -1,0 +1,22 @@
+#!/usr/bin/openrc-run
+# See LICENSE file for copyright and license details.
+# JadeOS: the LightDM display manager.
+
+description="LightDM display manager"
+command=/usr/bin/lightdm
+command_background=yes
+pidfile=/run/lightdm.pid
+retry="TERM/10/KILL/5"
+
+depend() {
+	need localmount dbus
+	want elogind
+	after bootmisc udev-trigger elogind polkit
+	use xfs
+}
+
+start_pre() {
+	checkpath -d -m 0750 -o lightdm:lightdm /var/lib/lightdm /var/lib/lightdm-data /var/cache/lightdm
+	checkpath -d -m 0711 -o root:root /var/log/lightdm
+	checkpath -d -m 0711 -o root:root /run/lightdm
+}

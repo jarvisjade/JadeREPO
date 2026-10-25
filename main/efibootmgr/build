@@ -1,0 +1,20 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=efibootmgr
+srcdir=$PWD
+
+build() {
+    cd efibootmgr-$pkgver
+    make CC="$CC" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" EFIDIR=JadeOS libdir=/usr/lib sbindir=/usr/bin
+}
+
+package() {
+    cd efibootmgr-$pkgver
+    make DESTDIR="$pkgdir" EFIDIR=JadeOS libdir=/usr/lib sbindir=/usr/bin install
+}
+
+build
+cd "$srcdir"
+package

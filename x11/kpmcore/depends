@@ -1,0 +1,11 @@
+glibc
+gcc
+qt6-base
+kcoreaddons
+ki18n
+kwidgetsaddons
+polkit-qt6
+util-linux
+cmake make
+ninja make
+pkgconf make

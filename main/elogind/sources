@@ -1,0 +1,5 @@
+https://github.com/elogind/elogind/archive/refs/tags/v%VERSION%.tar.gz elogind-%VERSION%
+files/elogind.initd
+files/jo-poweroff
+files/jo-reboot
+files/jo-halt

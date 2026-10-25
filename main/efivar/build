@@ -1,0 +1,21 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=efivar
+srcdir=$PWD
+
+build() {
+    cd efivar-$pkgver
+    make CC="$CC" HOSTCC=gcc AR="$AR" NM="$NM" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" \
+        LIBDIR=/usr/lib ENABLE_DOCS=0
+}
+
+package() {
+    cd efivar-$pkgver
+    make CC="$CC" HOSTCC=gcc DESTDIR="$pkgdir" LIBDIR=/usr/lib BINDIR=/usr/bin ENABLE_DOCS=0 install
+}
+
+build
+cd "$srcdir"
+package

@@ -1,0 +1,16 @@
+#!/usr/bin/bash
+# See LICENSE file for copyright and license details.
+# shutdown: the usual interface, implemented with openrc-shutdown.
+
+action=--poweroff
+while getopts hPrHk opt; do
+	case "$opt" in
+	h|P) action=--poweroff ;;
+	r) action=--reboot ;;
+	H) action=--halt ;;
+	k) action=--kexec ;;
+	*) exit 2 ;;
+	esac
+done
+shift $((OPTIND - 1))
+exec openrc-shutdown "$action" "${1:-now}" "${@:2}"

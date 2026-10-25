@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Wi-Fi Networks
+GenericName=Network Connections
+Comment=Connect to Wi-Fi networks and see the connection details
+Exec=jadeos-wifi --menu
+Icon=network-wireless
+Categories=Network;Settings;
+Keywords=wifi;wireless;wlan;network;internet;

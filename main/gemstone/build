@@ -1,0 +1,12 @@
+#!/bin/sh -e
+
+modules="chroot.d config.d crypto.d db.d forge.d fs.d lode.d model.d net.d proc.d query.d recipe.d
+resolve.d settle.d transaction.d trigger.d"
+
+cd gemstone
+gdc $CFLAGS -funittest -fmain -o gemstone-tests tests.d $modules -lcurl
+./gemstone-tests
+gdc $CFLAGS -frelease -fbounds-check=on -static-libphobos -o gemstone main.d $modules -lcurl
+
+install -Dm755 gemstone "$1/usr/bin/gemstone"
+install -Dm644 README.md "$1/usr/share/doc/gemstone/README.md"

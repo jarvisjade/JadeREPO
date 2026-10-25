@@ -1,0 +1,46 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=polybar
+srcdir=$PWD
+
+build() {
+    cd polybar-$pkgver
+    export CXXFLAGS="$CXXFLAGS -include cstdint"
+    local xcbgen
+    xcbgen=$(pkg-config --variable=pythondir xcb-proto)
+    [[ -d "$xcbgen/xcbgen" ]]
+    export PYTHONPATH="$xcbgen"
+    cmake -S . -B build \
+        -DCMAKE_BUILD_TYPE=None \
+        -DCMAKE_CXX_STANDARD_LIBRARIES=-lfreetype \
+        -DCMAKE_INSTALL_PREFIX=/usr \
+        -DPYTHON_EXECUTABLE=/usr/bin/python3 \
+        -DPYTHON_XCBGEN="$xcbgen" \
+        -DENABLE_CCACHE=OFF \
+        -DBUILD_DOC=OFF \
+        -DBUILD_TESTS=OFF \
+        -DBUILD_SHELL=OFF \
+        -DENABLE_I3=OFF \
+        -DENABLE_MPD=OFF \
+        -DENABLE_ALSA=OFF \
+        -DENABLE_PULSEAUDIO=OFF \
+        -DENABLE_CURL=OFF \
+        -DENABLE_NETWORK=ON \
+        -DWITH_LIBNL=ON \
+        -DENABLE_XKEYBOARD=ON \
+        -DWITH_XRM=OFF \
+        -DWITH_XCURSOR=ON
+    cmake --build build -j "$GEMSTONE_JOBS"
+}
+
+package() {
+    cd polybar-$pkgver
+    DESTDIR="$pkgdir" cmake --install build
+    rm -rf "$pkgdir/usr/share/doc"
+}
+
+build
+cd "$srcdir"
+package

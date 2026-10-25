@@ -1,0 +1,23 @@
+glibc
+glib
+pango
+libxml2
+libx11
+libxext
+libxrandr
+libxinerama
+libxcursor
+libxft
+libxrender
+startup-notification
+bash
+libsm
+libice
+harfbuzz
+fontconfig
+freetype2
+imlib2
+librsvg
+cairo
+gdk-pixbuf2
+pkgconf make

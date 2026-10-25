@@ -1,0 +1,20 @@
+glibc
+libx11
+libxau
+libxdmcp
+libxfont2
+libxkbfile
+libxshmfence
+libxcvt
+pixman
+libdrm
+mesa
+libepoxy
+libpciaccess
+eudev
+openssl
+xkeyboard-config
+xorg-xkbcomp
+meson make
+ninja make
+pkgconf make

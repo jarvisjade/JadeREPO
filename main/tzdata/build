@@ -1,0 +1,25 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=tzdata
+srcdir=$PWD
+
+build() {
+    mkdir -p zoneinfo
+    local zones=(africa antarctica asia australasia europe northamerica southamerica etcetera backward factory)
+    zic -b fat -d zoneinfo "${zones[@]}"
+    zic -b fat -d zoneinfo/posix "${zones[@]}"
+    zic -b fat -d zoneinfo/right -L leapseconds "${zones[@]}"
+    zic -b fat -d zoneinfo -p America/New_York
+}
+
+package() {
+    install -d "$pkgdir/usr/share"
+    cp -a zoneinfo "$pkgdir/usr/share/zoneinfo"
+    install -m644 zone.tab zone1970.tab iso3166.tab leapseconds "$pkgdir/usr/share/zoneinfo/"
+}
+
+build
+cd "$srcdir"
+package

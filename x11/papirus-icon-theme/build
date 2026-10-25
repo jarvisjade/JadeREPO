@@ -1,0 +1,15 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=papirus-icon-theme
+srcdir=$PWD
+
+package() {
+    cd papirus-icon-theme-$pkgver
+    make DESTDIR="$pkgdir" PREFIX=/usr EXCLUDE=Papirus-Light install
+    install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}
+
+cd "$srcdir"
+package

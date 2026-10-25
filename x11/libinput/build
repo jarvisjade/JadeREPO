@@ -1,0 +1,31 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=libinput
+srcdir=$PWD
+
+build() {
+    cd libinput-$pkgver
+    meson setup build --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=lib --libexecdir=lib --sbindir=bin --buildtype=plain --wrap-mode=nofallback \
+        -Dudev-dir=/usr/lib/udev \
+        -Dlibwacom=false \
+        -Dmtdev=true \
+        -Ddebug-gui=false \
+        -Dtests=false \
+        -Dinstall-tests=false \
+        -Ddocumentation=false \
+        -Dlua-plugins=disabled \
+        -Dzshcompletiondir=no
+    meson compile -C build
+}
+
+package() {
+    cd libinput-$pkgver
+    meson install -C build --destdir "$pkgdir"
+    rm -rf "$pkgdir/usr/share/zsh"
+}
+
+build
+cd "$srcdir"
+package

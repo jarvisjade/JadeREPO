@@ -1,0 +1,22 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=iproute2
+srcdir=$PWD
+
+build() {
+    cd iproute2-$pkgver
+    ./configure --prefix=/usr --libdir=/usr/lib
+    make CC="$CC" HOSTCC=gcc AR="$AR" SBINDIR=/usr/bin
+}
+
+package() {
+    cd iproute2-$pkgver
+    make DESTDIR="$pkgdir" SBINDIR=/usr/bin install
+    rm -rf "$pkgdir/usr/share/doc" "$pkgdir/usr/share/bash-completion"
+}
+
+build
+cd "$srcdir"
+package

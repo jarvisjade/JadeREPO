@@ -1,0 +1,35 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=readline
+srcdir=$PWD
+
+build() {
+    cd readline-$pkgver
+    ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=/usr/lib --libexecdir=/usr/lib --sbindir=/usr/bin --disable-static --with-curses
+    make SHLIB_LIBS=-lncursesw
+}
+
+package() {
+    cd readline-$pkgver
+    make DESTDIR="$pkgdir" install
+    rm -rf "$pkgdir/usr/share/doc" "$pkgdir/usr/bin"
+    install -Dm644 /dev/stdin "$pkgdir/etc/inputrc" <<'INPUTRC'
+set meta-flag on
+set input-meta on
+set output-meta on
+set convert-meta off
+set bell-style none
+"\e[1~": beginning-of-line
+"\e[4~": end-of-line
+"\e[3~": delete-char
+"\e[2~": quoted-insert
+"\e[5~": history-search-backward
+"\e[6~": history-search-forward
+INPUTRC
+}
+
+build
+cd "$srcdir"
+package

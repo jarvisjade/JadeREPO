@@ -1,0 +1,19 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=ca-certificates
+srcdir=$PWD
+
+build() {
+    perl curl-8.23.0/scripts/mk-ca-bundle.pl -n -f ca-certificates.crt
+}
+
+package() {
+    install -Dm644 ca-certificates.crt "$pkgdir/etc/ssl/certs/ca-certificates.crt"
+    ln -s certs/ca-certificates.crt "$pkgdir/etc/ssl/cert.pem"
+}
+
+build
+cd "$srcdir"
+package

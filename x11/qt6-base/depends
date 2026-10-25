@@ -1,0 +1,29 @@
+glibc
+gcc
+zlib
+zstd
+pcre2
+glib
+dbus
+openssl
+freetype2
+fontconfig
+harfbuzz
+libpng
+libjpeg-turbo
+libx11
+libxcb
+xcb-util-image
+xcb-util-keysyms
+xcb-util-renderutil
+xcb-util-wm
+xcb-util-cursor
+libxkbcommon
+libdrm
+mesa
+eudev
+libice
+libsm
+cmake make
+ninja make
+pkgconf make

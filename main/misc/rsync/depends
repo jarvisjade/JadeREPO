@@ -1,0 +1,8 @@
+glibc
+acl
+attr
+popt
+zlib
+zstd
+openssl
+pkgconf make

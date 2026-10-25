@@ -1,0 +1,22 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=xorgproto
+srcdir=$PWD
+
+build() {
+    cd xorgproto-$pkgver
+    meson setup build --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=lib --libexecdir=lib --sbindir=bin --buildtype=plain --wrap-mode=nofallback -Dlegacy=false
+    meson compile -C build
+}
+
+package() {
+    cd xorgproto-$pkgver
+    meson install -C build --destdir "$pkgdir"
+    rm -rf "$pkgdir/usr/share/doc"
+}
+
+build
+cd "$srcdir"
+package

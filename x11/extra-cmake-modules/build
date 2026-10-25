@@ -1,0 +1,21 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=extra-cmake-modules
+srcdir=$PWD
+
+build() {
+    cd extra-cmake-modules-$pkgver
+    cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=None -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_INSTALL_LIBDIR=lib -DCMAKE_INSTALL_LIBEXECDIR=lib -DCMAKE_INSTALL_SYSCONFDIR=/etc -DBUILD_TESTING=OFF -DBUILD_DOC=OFF -DBUILD_HTML_DOCS=OFF -DBUILD_MAN_DOCS=OFF -DBUILD_QTHELP_DOCS=OFF
+    cmake --build build
+}
+
+package() {
+    cd extra-cmake-modules-$pkgver
+    DESTDIR="$pkgdir" cmake --install build
+}
+
+build
+cd "$srcdir"
+package

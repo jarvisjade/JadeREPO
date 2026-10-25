@@ -1,0 +1,11 @@
+glibc
+glib
+gtk3
+gdk-pixbuf2
+pango
+cairo
+libx11
+libfm
+menu-cache
+at-spi2-core
+pkgconf make

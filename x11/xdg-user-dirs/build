@@ -1,0 +1,21 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=xdg-user-dirs
+srcdir=$PWD
+
+build() {
+    cd xdg-user-dirs-$pkgver
+    meson setup build --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=lib --libexecdir=lib --sbindir=bin --buildtype=plain --wrap-mode=nofallback -Ddocs=false
+    meson compile -C build
+}
+
+package() {
+    cd xdg-user-dirs-$pkgver
+    meson install -C build --destdir "$pkgdir"
+}
+
+build
+cd "$srcdir"
+package

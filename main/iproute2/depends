@@ -1,0 +1,4 @@
+glibc
+libcap
+elfutils
+pkgconf make

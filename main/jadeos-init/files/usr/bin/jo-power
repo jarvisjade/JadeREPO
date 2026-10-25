@@ -1,0 +1,11 @@
+#!/usr/bin/bash
+# See LICENSE file for copyright and license details.
+# poweroff, reboot, halt: shut the system down through openrc-shutdown.
+
+case "${0##*/}" in
+	poweroff) action=--poweroff ;;
+	reboot) action=--reboot ;;
+	halt) action=--halt ;;
+	*) printf 'jo-power: call me as poweroff, reboot or halt\n' >&2; exit 2 ;;
+esac
+exec openrc-shutdown "$action" now

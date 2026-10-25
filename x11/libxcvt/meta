@@ -1,0 +1,3 @@
+description: VESA CVT standard timing modelines generator
+url: https://gitlab.freedesktop.org/xorg/lib/libxcvt
+license: MIT

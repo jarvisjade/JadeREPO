@@ -1,0 +1,14 @@
+glibc
+glib
+harfbuzz
+fribidi
+fontconfig
+freetype2
+cairo
+libxft
+libx11
+libxrender
+meson make
+ninja make
+python make
+pkgconf make

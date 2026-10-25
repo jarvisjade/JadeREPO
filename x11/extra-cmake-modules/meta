@@ -1,0 +1,3 @@
+description: CMake modules used by KDE Frameworks
+url: https://invent.kde.org/frameworks/extra-cmake-modules
+license: BSD-3-Clause

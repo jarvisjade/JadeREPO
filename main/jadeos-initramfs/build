@@ -1,0 +1,14 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=jadeos-initramfs
+srcdir=$PWD
+
+package() {
+    cp -a "$srcdir/files/." "$pkgdir/"
+    chmod 755 "$pkgdir/usr/bin/jo-mkinitramfs" "$pkgdir/usr/lib/jadeos/initramfs/init"
+}
+
+cd "$srcdir"
+package

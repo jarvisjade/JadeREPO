@@ -1,0 +1,70 @@
+JadeOS kernel configuration (linux-bore, linux-bore-v3; release -bore-jade)
+=========================================================================
+
+The configuration is built at compile time, not copied from another
+distribution:
+
+  1. make x86_64_defconfig           the kernel's own minimal x86-64 base
+  2. scripts/kconfig/merge_config.sh  plus the fragments in this directory,
+                                      in file-name order
+  3. make olddefconfig                fill in dependencies and defaults
+  4. verify.sh                        fail the build if any option a fragment
+                                      asks for did not survive step 3
+                                      (misspelt symbol, unmet dependency)
+
+kernel/linux-bore-build.sh runs these steps; kernel_check_config there also
+checks the options the JadeOS boot path relies on.
+
+Fragments
+---------
+
+  00-core.config               scheduler (BORE, 1000 Hz, preemption), memory,
+                               modules, boot, cgroups, namespaces, security,
+                               no debug information
+  10-power-platform.config     power, CPU frequency, ACPI, IOMMU, Intel VMD,
+                               sensors, laptop platform drivers, touchpad
+                               I2C/GPIO controllers, TPM
+  20-storage-fs.config         SATA, NVMe, USB storage, card readers, live
+                               system (loop, SquashFS, overlay, ISO 9660),
+                               RAID/LVM/encryption, file systems
+  30-usb-input.config          USB, Thunderbolt/USB4, Type-C, HID devices,
+                               touchpads, game controllers, USB serial
+  40-graphics.config           Intel, AMD, NVIDIA (nouveau), virtual GPUs,
+                               NPUs
+  50-sound.config              HD Audio and its codecs, Intel SOF, AMD ACP,
+                               USB audio, PCI sound cards
+  60-network.config            network stack and firewall, Ethernet, USB
+                               network adapters and tethering, Wi-Fi,
+                               Bluetooth
+  70-virt-media-crypto.config  guest and host virtualization, webcams,
+                               crypto used by iwd and cryptsetup
+
+Goal and data
+-------------
+
+The kernel should work out of the box on almost every PC (desktops,
+laptops, virtual machines), without the thousands of server, embedded,
+industrial and obsolete drivers a general distribution kernel carries.
+Driver families were chosen from the Linux hardware census at
+linux-hardware.org (github.com/linuxhw/Trends, Desktop and Notebook
+reports, December 2025), for example:
+
+  Wi-Fi     Intel 36-47%, Realtek 16-23%, MediaTek 10-15%, Qualcomm
+            Atheros 4-12%, Broadcom 3-9%
+  Ethernet  Realtek 54-60%, Intel 26-28%, Qualcomm Atheros, Broadcom,
+            ASIX (USB), Aquantia
+  GPU       Intel, AMD, NVIDIA (nouveau in the kernel; the proprietary
+            driver is separate)
+  Storage   AHCI (Intel, AMD, ASMedia), NVMe, Intel VMD (3-4% of laptops)
+  Sound     Intel and AMD HD Audio, Intel SOF and AMD ACP on newer laptops,
+            NVIDIA and AMD HDMI audio, USB audio
+
+Not included on purpose: staging drivers, InfiniBand and other data-centre
+fabrics, CAN and fieldbus, ISDN/ATM/WAN, amateur radio, TV and radio
+tuners, MTD flash, network switch chips, PCMCIA and parallel port, and
+hardware of other architectures. Broadcom BCM4360-class Wi-Fi needs
+Broadcom's proprietary driver and is not supported by the kernel itself.
+
+Adding hardware: put the option in the fragment for its area with a short
+comment, then build; verify.sh reports options whose dependencies are not
+met, so add those dependencies too.

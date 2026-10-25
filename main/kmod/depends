@@ -1,0 +1,8 @@
+glibc
+zlib
+xz
+zstd
+openssl
+meson make
+ninja make
+pkgconf make

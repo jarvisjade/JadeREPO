@@ -1,0 +1,5 @@
+glibc
+freetype2
+libfontenc
+zlib
+pkgconf make

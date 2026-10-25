@@ -1,0 +1,24 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=xf86-video-fbdev
+srcdir=$PWD
+
+build() {
+    cd xf86-video-fbdev-$pkgver
+    export LDFLAGS="${LDFLAGS/-Wl,-z,now/}"
+    ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=/usr/lib --libexecdir=/usr/lib --sbindir=/usr/bin --disable-static \
+        --with-xorg-module-dir=/usr/lib/xorg/modules
+    make
+}
+
+package() {
+    cd xf86-video-fbdev-$pkgver
+    make DESTDIR="$pkgdir" install
+    rm -rf "$pkgdir/usr/share/doc"
+}
+
+build
+cd "$srcdir"
+package

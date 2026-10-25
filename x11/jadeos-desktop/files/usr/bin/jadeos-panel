@@ -1,0 +1,11 @@
+#!/usr/bin/bash
+# See LICENSE file for copyright and license details.
+# jadeos-panel: start polybar, replacing a running one.
+
+pkill -x -u "$(id -u)" polybar 2>/dev/null
+
+config="${XDG_CONFIG_HOME:-$HOME/.config}/polybar/config.ini"
+if [[ -f "$config" ]]; then
+    exec polybar --reload --config="$config"
+fi
+exec polybar --reload --config=/usr/share/jadeos/polybar/config.ini jadeos

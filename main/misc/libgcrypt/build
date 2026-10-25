@@ -1,0 +1,25 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=libgcrypt
+srcdir=$PWD
+
+build() {
+    cd libgcrypt-$pkgver
+    ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=/usr/lib --libexecdir=/usr/lib --sbindir=/usr/bin --disable-static \
+        --with-libgpg-error-prefix="/usr" \
+        --disable-doc \
+        --disable-padlock-support
+    make
+}
+
+package() {
+    cd libgcrypt-$pkgver
+    make DESTDIR="$pkgdir" install
+    rm -rf "$pkgdir/usr/share/doc" "$pkgdir/usr/share/info"
+}
+
+build
+cd "$srcdir"
+package

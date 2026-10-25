@@ -1,0 +1,11 @@
+glibc
+glib
+dbus
+libxml2
+libx11
+libxi
+libxtst
+meson make
+ninja make
+python make
+pkgconf make

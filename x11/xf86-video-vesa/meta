@@ -1,0 +1,3 @@
+description: X.Org VESA video driver (BIOS systems without a KMS driver)
+url: https://www.x.org/
+license: MIT

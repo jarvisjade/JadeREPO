@@ -1,0 +1,41 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=uutils-coreutils
+srcdir=$PWD
+
+utilities=('[' b2sum base32 base64 basename basenc cat chgrp chmod chown chroot cksum comm cp csplit cut date dd df dir dircolors dirname du echo env expand expr factor false fmt fold groups head hostid id install join link ln logname ls md5sum mkdir mkfifo mknod mktemp mv nice nl nohup nproc numfmt od paste pathchk pinky pr printenv printf ptx pwd readlink realpath rm rmdir seq sha1sum sha224sum sha256sum sha384sum sha512sum shred shuf sleep sort split stat stdbuf stty sum sync tac tail tee test timeout touch tr true truncate tsort tty uname unexpand uniq unlink users vdir wc who whoami yes )
+
+rust_target=x86_64-unknown-linux-gnu
+
+build() {
+    cd "coreutils-$pkgver"
+    export CARGO_HOME="$srcdir/cargo-home"
+    export CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER="$CC"
+    export CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUSTFLAGS="-C target-cpu=x86-64"
+    cargo build --release --locked --features unix --target "$rust_target" -j "$GEMSTONE_JOBS"
+
+    local available missing=() program="target/$rust_target/release/coreutils"
+    available=" $("$program" --list | tr '\n' ' ') "
+    for utility in "${utilities[@]}"; do
+        [[ "$available" == *" $utility "* ]] || missing+=("$utility")
+    done
+    if [[ ${#missing[@]} -gt 0 ]]; then
+        echo "uutils $pkgver does not provide: ${missing[*]}" >&2
+        return 1
+    fi
+}
+
+package() {
+    cd "coreutils-$pkgver"
+    install -Dm755 "target/$rust_target/release/coreutils" "$pkgdir/usr/bin/coreutils"
+    for utility in "${utilities[@]}"; do
+        ln -s coreutils "$pkgdir/usr/bin/$utility"
+    done
+    install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}
+
+build
+cd "$srcdir"
+package

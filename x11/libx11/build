@@ -1,0 +1,32 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=libx11
+srcdir=$PWD
+
+build() {
+    cd libX11-$pkgver
+    mkdir -p build-include
+    ln -sfn "/usr/include/X11" build-include/X11
+    export CPPFLAGS_FOR_BUILD="-I$PWD/build-include"
+    ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=/usr/lib --libexecdir=/usr/lib --sbindir=/usr/bin --disable-static \
+        --disable-specs \
+        --without-xmlto \
+        --without-fop \
+        --without-xsltproc \
+        --disable-malloc0returnsnull \
+        --enable-ipv6 \
+        --enable-loadable-i18n
+    make
+}
+
+package() {
+    cd libX11-$pkgver
+    make DESTDIR="$pkgdir" install
+    rm -rf "$pkgdir/usr/share/doc"
+}
+
+build
+cd "$srcdir"
+package

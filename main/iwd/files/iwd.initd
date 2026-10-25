@@ -1,0 +1,21 @@
+#!/usr/bin/openrc-run
+# See LICENSE file for copyright and license details.
+# JadeOS: the iwd Wi-Fi daemon.
+
+description="Wireless daemon"
+command=/usr/lib/iwd
+command_background=yes
+pidfile=/run/iwd.pid
+output_log=/var/log/iwd.log
+error_log=/var/log/iwd.log
+
+depend() {
+	need localmount
+	after bootmisc modules
+	before net
+	need dbus
+}
+
+start_pre() {
+	checkpath -f -m 0640 -o root:wheel /var/log/iwd.log
+}

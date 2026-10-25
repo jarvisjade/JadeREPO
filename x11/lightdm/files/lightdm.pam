@@ -1,0 +1,7 @@
+#%PAM-1.0
+# JadeOS: LightDM user logins.
+auth      include   system-login
+account   include   system-login
+password  include   system-login
+session   include   system-login
+-session  optional  pam_elogind.so

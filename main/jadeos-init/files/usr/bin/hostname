@@ -1,0 +1,9 @@
+#!/usr/bin/bash
+# See LICENSE file for copyright and license details.
+# hostname [name]: print or set the kernel host name.
+
+if [[ $# -eq 0 ]]; then
+	exec cat /proc/sys/kernel/hostname
+fi
+[[ "$1" != -* ]] || { printf 'usage: hostname [name]\n' >&2; exit 2; }
+printf '%s\n' "$1" > /proc/sys/kernel/hostname

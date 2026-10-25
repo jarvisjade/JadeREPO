@@ -1,0 +1,13 @@
+glibc
+glib
+expat
+duktape
+linux-pam
+elogind
+dbus
+jadeos-sysusers
+meson make
+ninja make
+python make
+gettext make
+pkgconf make

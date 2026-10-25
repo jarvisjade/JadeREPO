@@ -1,0 +1,4 @@
+glibc
+cmake make
+ninja make
+pkgconf make

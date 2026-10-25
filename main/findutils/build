@@ -1,0 +1,22 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=findutils
+srcdir=$PWD
+
+build() {
+    cd findutils-4.11.0
+    ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=/usr/lib --libexecdir=/usr/lib --sbindir=/usr/bin --disable-static --disable-nls --localstatedir=/var/lib/locate
+    make
+}
+
+package() {
+    cd findutils-4.11.0
+    make DESTDIR="$pkgdir" install
+    rm -rf "$pkgdir/usr/share/info" "$pkgdir/usr/share/doc"
+}
+
+build
+cd "$srcdir"
+package

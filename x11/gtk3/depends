@@ -1,0 +1,28 @@
+glibc
+glib
+pango
+harfbuzz
+fribidi
+cairo
+gdk-pixbuf2
+at-spi2-core
+libepoxy
+fontconfig
+freetype2
+libx11
+libxext
+libxi
+libxrandr
+libxcursor
+libxfixes
+libxcomposite
+libxdamage
+libxinerama
+libxrender
+shared-mime-info
+hicolor-icon-theme
+adwaita-icon-theme
+meson make
+ninja make
+python make
+pkgconf make

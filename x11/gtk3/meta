@@ -1,0 +1,3 @@
+description: GObject-based multi-platform GUI toolkit (version 3, X11 backend)
+url: https://www.gtk.org/
+license: LGPL-2.1-or-later

@@ -1,0 +1,28 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=libxaw
+srcdir=$PWD
+
+build() {
+    cd libXaw-$pkgver
+    ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=/usr/lib --libexecdir=/usr/lib --sbindir=/usr/bin --disable-static \
+        --disable-xaw6 \
+        --disable-specs \
+        --without-xmlto \
+        --without-fop \
+        --without-xsltproc \
+        --disable-unit-tests
+    make
+}
+
+package() {
+    cd libXaw-$pkgver
+    make DESTDIR="$pkgdir" install
+    rm -rf "$pkgdir/usr/share/doc"
+}
+
+build
+cd "$srcdir"
+package

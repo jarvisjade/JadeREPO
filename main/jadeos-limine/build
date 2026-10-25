@@ -1,0 +1,14 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=jadeos-limine
+srcdir=$PWD
+
+package() {
+    cp -a "$srcdir/files/." "$pkgdir/"
+    chmod 755 "$pkgdir/usr/bin/jo-limine" "$pkgdir/usr/bin/jo-cpu-level"
+}
+
+cd "$srcdir"
+package

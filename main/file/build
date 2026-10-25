@@ -1,0 +1,25 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=file
+srcdir=$PWD
+
+build() {
+    cd file-5.48
+    mkdir -p build-host
+    (cd build-host && env -u CC -u CXX -u CFLAGS -u CXXFLAGS -u LDFLAGS -u CPP -u AR -u RANLIB \
+        ../configure --disable-bzlib --disable-libseccomp --disable-xzlib --disable-zlib --disable-zstdlib && make)
+    ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=/usr/lib --libexecdir=/usr/lib --sbindir=/usr/bin --disable-static --enable-fsect-man5 --disable-libseccomp
+    make FILE_COMPILE="$PWD/build-host/src/file"
+}
+
+package() {
+    cd file-5.48
+    make DESTDIR="$pkgdir" install
+    rm -rf "$pkgdir/usr/share/info" "$pkgdir/usr/share/doc"
+}
+
+build
+cd "$srcdir"
+package

@@ -1,0 +1,26 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=dhcpcd
+srcdir=$PWD
+
+build() {
+    cd dhcpcd-$pkgver
+    ./configure --prefix=/usr --sbindir=/usr/bin \
+        --libexecdir=/usr/lib/dhcpcd --dbdir=/var/lib/dhcpcd --runstatedir=/run \
+        --privsepuser=dhcpcd
+    make
+}
+
+package() {
+    cd dhcpcd-$pkgver
+    make DESTDIR="$pkgdir" install
+    install -Dm755 "$srcdir/dhcpcd.initd" "$pkgdir/etc/init.d/dhcpcd"
+    printf 'u dhcpcd - "dhcpcd privilege separation" /var/lib/dhcpcd\n' |
+        install -Dm644 /dev/stdin "$pkgdir/usr/lib/sysusers.d/dhcpcd.conf"
+}
+
+build
+cd "$srcdir"
+package

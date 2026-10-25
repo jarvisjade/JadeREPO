@@ -1,0 +1,13 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=lightdm-openrc
+srcdir=$PWD
+
+package() {
+    install -Dm755 "$srcdir/lightdm.initd" "$pkgdir/etc/init.d/lightdm"
+}
+
+cd "$srcdir"
+package

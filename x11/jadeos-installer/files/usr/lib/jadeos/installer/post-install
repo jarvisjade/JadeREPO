@@ -1,0 +1,33 @@
+#!/usr/bin/bash
+# See LICENSE file for copyright and license details.
+# post-install: remove the live session and installer, keep one kernel.
+
+set -euo pipefail
+
+printf 'permit persist :wheel\n' > /etc/doas.conf
+chmod 400 /etc/doas.conf
+printf 'agetty_options=""\n' > /etc/conf.d/agetty.tty1
+rc-update del agetty.ttyS0 default >/dev/null 2>&1 || true
+rm -f /etc/lightdm/lightdm.conf.d/50-jadeos-live.conf \
+    /etc/init.d/agetty.ttyS0 /etc/conf.d/agetty.ttyS0
+
+dbus-uuidgen --ensure=/etc/machine-id
+install -d /var/lib/dbus
+ln -sfn /etc/machine-id /var/lib/dbus/machine-id
+
+keymap=$(sed -n 's/^KEYMAP=//p' /etc/vconsole.conf 2>/dev/null | tr -d '"')
+[[ -z $keymap ]] ||
+    sed -i "s|^keymap=.*|keymap=\"$keymap\"|" /etc/conf.d/keymaps
+
+sed -i '/<item label="Install JadeOS">/{N;d}' /etc/xdg/openbox/menu.xml
+gemstone bury -y jadeos-installer calamares
+
+kernel=$(jo-cpu-level --kernel)
+gemstone stamp explicit "$kernel"
+others=$(gemstone hoard | cut -f1 | grep -x 'linux-bore\(-v[23]\)\{0,1\}' |
+    grep -vx "$kernel" || true)
+[[ -z $others ]] || gemstone bury -y $others
+gemstone sift -y
+
+echo "jadeos-post: kernel $kernel for $(jo-cpu-level)"
+echo "jadeos-post: live session configuration removed"

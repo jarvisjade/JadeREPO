@@ -1,0 +1,37 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=dbus
+srcdir=$PWD
+
+build() {
+    cd dbus-$pkgver
+    meson setup build --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=lib --libexecdir=lib --sbindir=bin --buildtype=plain --wrap-mode=nofallback \
+        -Dsystemd=disabled \
+        -Dselinux=disabled \
+        -Dapparmor=disabled \
+        -Dlibaudit=disabled \
+        -Dx11_autolaunch=disabled \
+        -Ddoxygen_docs=disabled \
+        -Dxml_docs=disabled \
+        -Dmodular_tests=disabled \
+        -Ddbus_user=dbus \
+        -Dsystem_pid_file=/run/dbus/pid \
+        -Dsystem_socket=/run/dbus/system_bus_socket
+    meson compile -C build
+}
+
+package() {
+    cd dbus-$pkgver
+    meson install -C build --destdir "$pkgdir"
+    install -Dm755 "$srcdir/dbus.initd" "$pkgdir/etc/init.d/dbus"
+    rm -rf "$pkgdir/usr/share/doc" "$pkgdir/var/run"
+    install -Dm644 /dev/stdin "$pkgdir/usr/lib/sysusers.d/dbus.conf" <<'SYSUSERS'
+u dbus 81 "System Message Bus"
+SYSUSERS
+}
+
+build
+cd "$srcdir"
+package

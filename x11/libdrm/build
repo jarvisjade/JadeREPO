@@ -1,0 +1,37 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=libdrm
+srcdir=$PWD
+
+build() {
+    cd libdrm-$pkgver
+    meson setup build --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=lib --libexecdir=lib --sbindir=bin --buildtype=plain --wrap-mode=nofallback \
+        -Dintel=enabled \
+        -Dradeon=enabled \
+        -Damdgpu=enabled \
+        -Dnouveau=enabled \
+        -Dvmwgfx=enabled \
+        -Domap=disabled \
+        -Dexynos=disabled \
+        -Dfreedreno=disabled \
+        -Dtegra=disabled \
+        -Dvc4=disabled \
+        -Detnaviv=disabled \
+        -Dcairo-tests=disabled \
+        -Dman-pages=disabled \
+        -Dvalgrind=disabled \
+        -Dudev=true \
+        -Dtests=false
+    meson compile -C build
+}
+
+package() {
+    cd libdrm-$pkgver
+    meson install -C build --destdir "$pkgdir"
+}
+
+build
+cd "$srcdir"
+package

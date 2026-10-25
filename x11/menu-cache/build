@@ -1,0 +1,22 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=menu-cache
+srcdir=$PWD
+
+build() {
+    cd menu-cache-$pkgver
+    export CFLAGS="$CFLAGS -std=gnu17 -fcommon"
+    ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=/usr/lib --libexecdir=/usr/lib --sbindir=/usr/bin --disable-static --disable-gtk-doc
+    make
+}
+
+package() {
+    cd menu-cache-$pkgver
+    make DESTDIR="$pkgdir" install
+}
+
+build
+cd "$srcdir"
+package

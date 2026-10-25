@@ -1,0 +1,24 @@
+#!/usr/bin/openrc-run
+# See LICENSE file for copyright and license details.
+# JadeOS: dhcpcd on every interface.
+
+description="DHCP client for all network interfaces"
+command=/usr/bin/dhcpcd
+command_args="-q -b --logfile /var/log/dhcpcd.log ${DHCPCD_ARGS}"
+pidfile=/run/dhcpcd/pid
+
+depend() {
+	provide net
+	need localmount
+	use logger
+	after bootmisc modules
+	before dns
+}
+
+stop_pre() {
+	command_args="-k"
+}
+
+start_pre() {
+	checkpath -f -m 0640 -o root:wheel /var/log/dhcpcd.log
+}

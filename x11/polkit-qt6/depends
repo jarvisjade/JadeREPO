@@ -1,0 +1,8 @@
+glibc
+gcc
+glib
+polkit
+qt6-base
+cmake make
+ninja make
+pkgconf make

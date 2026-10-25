@@ -1,0 +1,6 @@
+glibc
+libx11
+libxau
+libxext
+libxmu
+pkgconf make

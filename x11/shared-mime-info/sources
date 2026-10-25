@@ -1,0 +1,2 @@
+https://gitlab.freedesktop.org/xdg/shared-mime-info/-/archive/%VERSION%/shared-mime-info-%VERSION%.tar.gz shared-mime-info-%VERSION%
+files/50-mime-database

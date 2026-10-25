@@ -1,0 +1,24 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=limine
+srcdir=$PWD
+
+build() {
+    cd limine-$pkgver
+    ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=/usr/lib --libexecdir=/usr/lib --sbindir=/usr/bin --disable-static \
+        --enable-bios --enable-bios-cd --enable-bios-pxe \
+        --enable-uefi-x86-64 --enable-uefi-ia32 --enable-uefi-cd
+    make
+}
+
+package() {
+    cd limine-$pkgver
+    make DESTDIR="$pkgdir" install
+    rm -rf "$pkgdir/usr/share/doc"
+}
+
+build
+cd "$srcdir"
+package

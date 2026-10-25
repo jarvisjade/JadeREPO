@@ -1,0 +1,16 @@
+glibc
+glib
+cairo
+pango
+gdk-pixbuf2
+libxkbcommon
+libxcb
+xcb-util
+xcb-util-wm
+xcb-util-cursor
+xcb-util-keysyms
+startup-notification
+meson make
+ninja make
+python make
+pkgconf make

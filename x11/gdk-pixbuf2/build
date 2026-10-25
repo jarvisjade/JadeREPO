@@ -1,0 +1,38 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=gdk-pixbuf2
+srcdir=$PWD
+
+build() {
+    cd gdk-pixbuf-$pkgver
+    meson setup build --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=lib --libexecdir=lib --sbindir=bin --buildtype=plain --wrap-mode=nofallback \
+        -Dpng=enabled \
+        -Djpeg=enabled \
+        -Dgif=enabled \
+        -Dtiff=disabled \
+        -Dglycin=disabled \
+        -Dandroid=disabled \
+        -Dothers=enabled \
+        -Dbuiltin_loaders=all \
+        -Dintrospection=disabled \
+        -Ddocumentation=false \
+        -Dman=false \
+        -Dtests=false \
+        -Dinstalled_tests=false \
+        -Dthumbnailer=disabled \
+        -Dgio_sniffing=true
+    meson compile -C build
+}
+
+package() {
+    cd gdk-pixbuf-$pkgver
+    meson install -C build --destdir "$pkgdir"
+    install -d "$pkgdir/usr/lib/gdk-pixbuf-2.0/2.10.0/loaders"
+    install -Dm644 "$srcdir/50-gdk-pixbuf-loaders" "$pkgdir/usr/share/gemstone/triggers/50-gdk-pixbuf-loaders"
+}
+
+build
+cd "$srcdir"
+package

@@ -1,0 +1,28 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=libxml2
+srcdir=$PWD
+
+build() {
+    cd libxml2-$pkgver
+    meson setup build --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=lib --libexecdir=lib --sbindir=bin --buildtype=plain --wrap-mode=nofallback \
+        -Dpython=disabled \
+        -Dicu=disabled \
+        -Dreadline=disabled \
+        -Dhistory=disabled \
+        -Dzlib=enabled \
+        -Ddocs=disabled
+    meson compile -C build
+}
+
+package() {
+    cd libxml2-$pkgver
+    meson install -C build --destdir "$pkgdir"
+    rm -rf "$pkgdir/usr/share/doc"
+}
+
+build
+cd "$srcdir"
+package

@@ -1,0 +1,73 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=bash
+srcdir=$PWD
+
+build() {
+    cd bash-$pkgver
+    local defines=(
+        -DDEFAULT_PATH_VALUE=\'\"/usr/local/sbin:/usr/local/bin:/usr/bin\"\'
+        -DSTANDARD_UTILS_PATH=\'\"/usr/bin\"\'
+        -DSYS_BASHRC=\'\"/etc/bash.bashrc\"\'
+        -DSYS_BASH_LOGOUT=\'\"/etc/bash.bash_logout\"\'
+        -DNON_INTERACTIVE_LOGIN_SHELLS
+    )
+    local glibc_answers=(
+        bash_cv_dev_fd=standard
+        bash_cv_dev_stdin=present
+        bash_cv_dup2_broken=no
+        bash_cv_fnmatch_equiv_fallback=yes
+        bash_cv_func_sbrk=yes
+        bash_cv_func_sigsetjmp=present
+        bash_cv_func_snprintf=yes
+        bash_cv_func_strchrnul_works=yes
+        bash_cv_func_strcoll_broken=no
+        bash_cv_func_vsnprintf=yes
+        bash_cv_getcwd_malloc=yes
+        bash_cv_getenv_redef=yes
+        bash_cv_job_control_missing=present
+        bash_cv_mail_dir=/var/mail
+        bash_cv_must_reinstall_sighandlers=no
+        bash_cv_opendir_not_robust=no
+        bash_cv_pgrp_pipe=no
+        bash_cv_printf_a_format=yes
+        bash_cv_strtold_broken=no
+        bash_cv_sys_named_pipes=present
+        bash_cv_sys_siglist=no
+        bash_cv_ulimit_maxfds=yes
+        bash_cv_under_sys_siglist=no
+        bash_cv_unusable_rtsigs=no
+        bash_cv_wcontinued_broken=no
+        bash_cv_wcwidth_broken=no
+        bash_cv_wexitstatus_offset=8
+    )
+    ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=/usr/lib --libexecdir=/usr/lib --sbindir=/usr/bin --disable-static \
+        --with-curses \
+        --enable-readline \
+        --without-bash-malloc \
+        --with-installed-readline \
+        CFLAGS="$CFLAGS ${defines[*]}" \
+        bash_cv_termcap_lib=libncursesw \
+        "${glibc_answers[@]}"
+    make
+}
+
+package() {
+    cd bash-$pkgver
+    make DESTDIR="$pkgdir" install
+    ln -s bash "$pkgdir/usr/bin/sh"
+    rm -rf "$pkgdir/usr/share/doc" "$pkgdir/usr/lib/bash"
+    install -Dm644 /dev/stdin "$pkgdir/etc/bash.bashrc" <<'BASHRC'
+[[ $- != *i* ]] && return
+
+PS1='[\u@\h \W]\$ '
+HISTCONTROL=ignoredups
+shopt -s checkwinsize histappend
+BASHRC
+}
+
+build
+cd "$srcdir"
+package

@@ -1,0 +1,8 @@
+glibc
+zlib
+libffi
+pcre2
+util-linux
+meson make
+ninja make
+pkgconf make

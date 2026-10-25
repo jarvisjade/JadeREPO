@@ -1,0 +1,26 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=pixman
+srcdir=$PWD
+
+build() {
+    cd pixman-$pkgver
+    meson setup build --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=lib --libexecdir=lib --sbindir=bin --buildtype=plain --wrap-mode=nofallback \
+        -Dopenmp=disabled \
+        -Dgtk=disabled \
+        -Dlibpng=disabled \
+        -Dtests=disabled \
+        -Ddemos=disabled
+    meson compile -C build
+}
+
+package() {
+    cd pixman-$pkgver
+    meson install -C build --destdir "$pkgdir"
+}
+
+build
+cd "$srcdir"
+package

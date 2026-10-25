@@ -1,0 +1,39 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=xterm
+srcdir=$PWD
+
+build() {
+    cd xterm-$pkgver
+    ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=/usr/lib --libexecdir=/usr/lib --sbindir=/usr/bin --disable-static \
+        --with-x \
+        --with-tty-group=tty \
+        --disable-full-tgetent \
+        --enable-wide-chars \
+        --enable-256-color \
+        --enable-freetype \
+        --enable-load-vt-fonts \
+        --enable-logging \
+        --enable-dabbrev \
+        --enable-exec-xterm \
+        --enable-sixel-graphics \
+        --enable-regis-graphics \
+        --with-app-defaults=/usr/share/X11/app-defaults \
+        --with-icondir=/usr/share/icons \
+        --with-pixmapdir=/usr/share/pixmaps
+    make
+}
+
+package() {
+    cd xterm-$pkgver
+    make DESTDIR="$pkgdir" install
+    install -Dm644 xterm.desktop "$pkgdir/usr/share/applications/xterm.desktop"
+    install -Dm644 uxterm.desktop "$pkgdir/usr/share/applications/uxterm.desktop"
+    printf 'NoDisplay=true\n' >> "$pkgdir/usr/share/applications/uxterm.desktop"
+}
+
+build
+cd "$srcdir"
+package

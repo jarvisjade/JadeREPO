@@ -1,0 +1,6 @@
+glibc
+libx11
+xorg-xauth
+util-linux
+bash
+pkgconf make

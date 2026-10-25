@@ -1,0 +1,21 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=inih
+srcdir=$PWD
+
+build() {
+    cd inih-r$pkgver
+    meson setup build --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=lib --libexecdir=lib --sbindir=bin --buildtype=plain --wrap-mode=nofallback -Ddefault_library=shared -Ddistro_install=true -Dwith_INIReader=true
+    meson compile -C build
+}
+
+package() {
+    cd inih-r$pkgver
+    meson install -C build --destdir "$pkgdir"
+}
+
+build
+cd "$srcdir"
+package

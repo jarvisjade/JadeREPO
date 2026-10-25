@@ -1,0 +1,7 @@
+glibc
+eudev
+libevdev
+mtdev
+meson make
+ninja make
+pkgconf make

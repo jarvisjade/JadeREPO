@@ -1,0 +1,27 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=freetype2
+srcdir=$PWD
+
+build() {
+    cd freetype-$pkgver
+    meson setup build --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=lib --libexecdir=lib --sbindir=bin --buildtype=plain --wrap-mode=nofallback \
+        -Dbrotli=disabled \
+        -Dbzip2=enabled \
+        -Dharfbuzz=disabled \
+        -Dpng=enabled \
+        -Dzlib=system \
+        -Dtests=disabled
+    meson compile -C build
+}
+
+package() {
+    cd freetype-$pkgver
+    meson install -C build --destdir "$pkgdir"
+}
+
+build
+cd "$srcdir"
+package

@@ -1,0 +1,8 @@
+glibc
+bash
+uutils-coreutils
+util-linux
+kmod
+cpio
+zstd
+gawk

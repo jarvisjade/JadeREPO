@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- JadeOS installer logo: a faceted jade gem. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <polygon points="128,16 228,88 192,232 64,232 28,88" fill="#00a86b"/>
+  <polygon points="128,16 228,88 128,104" fill="#2fd39a"/>
+  <polygon points="128,16 28,88 128,104" fill="#00c27c"/>
+  <polygon points="28,88 128,104 64,232" fill="#008a58"/>
+  <polygon points="228,88 128,104 192,232" fill="#007a4e"/>
+  <polygon points="128,104 64,232 192,232" fill="#006b44"/>
+</svg>

@@ -1,0 +1,30 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=elfutils
+srcdir=$PWD
+
+build() {
+    cd elfutils-$pkgver
+    ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=/usr/lib --libexecdir=/usr/lib --sbindir=/usr/bin --disable-static \
+        --program-prefix=eu- \
+        --disable-debuginfod \
+        --enable-libdebuginfod=no \
+        --disable-nls \
+        --with-zlib \
+        --with-bzlib \
+        --with-lzma \
+        --with-zstd
+    make
+}
+
+package() {
+    cd elfutils-$pkgver
+    make DESTDIR="$pkgdir" install
+    rm -f "$pkgdir"/usr/lib/*.a
+}
+
+build
+cd "$srcdir"
+package

@@ -1,0 +1,4 @@
+https://download.gnome.org/sources/gtk/3.24/gtk-%VERSION%.tar.xz gtk-%VERSION%
+files/50-icon-cache
+files/jo-update-icon-cache
+files/50-gtk3-immodules

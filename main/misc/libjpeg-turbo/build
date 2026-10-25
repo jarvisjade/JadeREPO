@@ -1,0 +1,30 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=libjpeg-turbo
+srcdir=$PWD
+
+build() {
+    cd libjpeg-turbo-$pkgver
+    cmake -S . -B build \
+        -DCMAKE_BUILD_TYPE=None \
+        -DCMAKE_INSTALL_PREFIX=/usr \
+        -DCMAKE_INSTALL_LIBDIR=lib \
+        -DENABLE_STATIC=OFF \
+        -DWITH_JPEG8=ON \
+        -DWITH_TOOLS=ON \
+        -DWITH_TESTS=OFF \
+        -DREQUIRE_SIMD=ON
+    cmake --build build -j "$GEMSTONE_JOBS"
+}
+
+package() {
+    cd libjpeg-turbo-$pkgver
+    DESTDIR="$pkgdir" cmake --install build
+    rm -rf "$pkgdir/usr/share/doc"
+}
+
+build
+cd "$srcdir"
+package

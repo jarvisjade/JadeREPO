@@ -1,0 +1,10 @@
+glibc
+glib
+libx11
+libxi
+libxkbfile
+libxml2
+xkeyboard-config
+xorg-xkbcomp
+iso-codes
+pkgconf make

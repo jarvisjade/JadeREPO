@@ -1,0 +1,29 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=iwd
+srcdir=$PWD
+
+build() {
+    cd iwd-$pkgver
+    ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=/usr/lib --libexecdir=/usr/lib --sbindir=/usr/bin --disable-static \
+        --enable-external-ell \
+        --disable-systemd-service \
+        --disable-manual-pages \
+        --disable-wired \
+        --disable-ofono
+    make
+}
+
+package() {
+    cd iwd-$pkgver
+    make DESTDIR="$pkgdir" install
+    install -Dm755 "$srcdir/iwd.initd" "$pkgdir/etc/init.d/iwd"
+    install -Dm644 "$srcdir/main.conf" "$pkgdir/etc/iwd/main.conf"
+    install -d -m700 "$pkgdir/var/lib/iwd"
+}
+
+build
+cd "$srcdir"
+package

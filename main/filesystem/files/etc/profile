@@ -1,0 +1,14 @@
+# /etc/profile: login shell environment for every user.
+
+umask 022
+export PATH="/usr/local/sbin:/usr/local/bin:/usr/bin"
+
+# Programs and packages add their settings in /etc/profile.d.
+for profile in /etc/profile.d/*.sh; do
+	[ -r "$profile" ] && . "$profile"
+done
+unset profile
+
+if [ -n "$BASH_VERSION" ] && [ -r /etc/bash.bashrc ] && [ "$PS1" ]; then
+	. /etc/bash.bashrc
+fi

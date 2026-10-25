@@ -1,0 +1,29 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=bzip2
+srcdir=$PWD
+
+build() {
+    cd bzip2-$pkgver
+    make -f Makefile-libbz2_so CC="$CC" CFLAGS="$CFLAGS -fPIC -D_FILE_OFFSET_BITS=64"
+    make bzip2 bzip2recover CC="$CC" AR="$AR" RANLIB="ranlib" CFLAGS="$CFLAGS -D_FILE_OFFSET_BITS=64" LDFLAGS="$LDFLAGS"
+}
+
+package() {
+    cd bzip2-$pkgver
+    install -Dm755 bzip2-shared "$pkgdir/usr/bin/bzip2"
+    install -m755 bzip2recover bzdiff bzgrep bzmore "$pkgdir/usr/bin/"
+    ln -sf bzip2 "$pkgdir/usr/bin/bunzip2"
+    ln -sf bzip2 "$pkgdir/usr/bin/bzcat"
+    install -Dm755 libbz2.so.$pkgver "$pkgdir/usr/lib/libbz2.so.$pkgver"
+    ln -s libbz2.so.$pkgver "$pkgdir/usr/lib/libbz2.so"
+    ln -s libbz2.so.$pkgver "$pkgdir/usr/lib/libbz2.so.1"
+    ln -s libbz2.so.$pkgver "$pkgdir/usr/lib/libbz2.so.1.0"
+    install -Dm644 bzlib.h "$pkgdir/usr/include/bzlib.h"
+}
+
+build
+cd "$srcdir"
+package

@@ -1,0 +1,3 @@
+https://mirrors.edge.kernel.org/pub/linux/utils/kernel/kmod/kmod-%VERSION%.tar.xz kmod-%VERSION%
+files/60-depmod
+files/jo-depmod

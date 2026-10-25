@@ -1,0 +1,23 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=tar
+srcdir=$PWD
+
+build() {
+    cd tar-1.35
+    sed -i -E 's/\<acl_(get_file|set_file|delete_def_file)_at\>/tar_acl_\1_at/g' src/xattrs.c
+    ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=/usr/lib --libexecdir=/usr/lib --sbindir=/usr/bin --disable-static --disable-nls
+    make
+}
+
+package() {
+    cd tar-1.35
+    make DESTDIR="$pkgdir" install
+    rm -rf "$pkgdir/usr/share/info" "$pkgdir/usr/share/doc"
+}
+
+build
+cd "$srcdir"
+package

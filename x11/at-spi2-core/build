@@ -1,0 +1,29 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=at-spi2-core
+srcdir=$PWD
+
+build() {
+    cd at-spi2-core-$pkgver
+    meson setup build --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=lib --libexecdir=lib --sbindir=bin --buildtype=plain --wrap-mode=nofallback \
+        -Ddbus_daemon=/usr/bin/dbus-daemon \
+        -Ddefault_bus=dbus-daemon \
+        -Ddbus_services_dir=/usr/share/dbus-1/services \
+        -Duse_systemd=false \
+        -Dgtk2_atk_adaptor=false \
+        -Dx11=enabled \
+        -Dintrospection=disabled \
+        -Ddocs=false
+    meson compile -C build
+}
+
+package() {
+    cd at-spi2-core-$pkgver
+    meson install -C build --destdir "$pkgdir"
+}
+
+build
+cd "$srcdir"
+package

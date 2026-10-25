@@ -1,0 +1,25 @@
+#!/usr/bin/bash
+# See LICENSE file for copyright and license details.
+# jo-update-icon-cache: rebuild the icon caches of the themes a transaction changed (paths on stdin).
+
+refresh() {
+	gtk-update-icon-cache -q -t -f "$1"
+}
+
+forget() {
+	rm -f "$1/icon-theme.cache"
+	rmdir --ignore-fail-on-non-empty "$1" 2>/dev/null
+}
+
+declare -A seen=()
+while read -r target; do
+	theme=${target#usr/share/icons/}
+	theme=${theme%%/*}
+	[[ -n "$theme" && -z "${seen[$theme]:-}" ]] || continue
+	seen[$theme]=1
+	dir=/usr/share/icons/$theme
+	action=forget
+	[[ -f "$dir/index.theme" ]] && action=refresh
+	"$action" "$dir"
+done
+exit 0

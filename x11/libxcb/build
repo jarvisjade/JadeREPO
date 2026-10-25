@@ -1,0 +1,27 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=libxcb
+srcdir=$PWD
+
+build() {
+    cd libxcb-$pkgver
+    ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=/usr/lib --libexecdir=/usr/lib --sbindir=/usr/bin --disable-static \
+        PYTHON=python3 \
+        --enable-xinput \
+        --enable-xkb \
+        --disable-devel-docs \
+        --without-doxygen
+    make
+}
+
+package() {
+    cd libxcb-$pkgver
+    make DESTDIR="$pkgdir" install
+    rm -rf "$pkgdir/usr/share/doc"
+}
+
+build
+cd "$srcdir"
+package

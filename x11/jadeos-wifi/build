@@ -1,0 +1,25 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=jadeos-wifi
+srcdir=$PWD
+
+build() {
+    cd src
+    "$CC" $CFLAGS -std=c99 -D_DEFAULT_SOURCE -Wall -Wextra \
+        -Wno-deprecated-declarations \
+        $(pkg-config --cflags gtk+-3.0) -o jadeos-wifi jadeos-wifi.c \
+        $LDFLAGS $(pkg-config --libs gtk+-3.0)
+}
+
+package() {
+    cd src
+    install -Dm755 jadeos-wifi "$pkgdir/usr/bin/jadeos-wifi"
+    install -Dm755 jadeos-netinfo "$pkgdir/usr/bin/jadeos-netinfo"
+    install -Dm644 jadeos-wifi.desktop "$pkgdir/usr/share/applications/jadeos-wifi.desktop"
+}
+
+build
+cd "$srcdir"
+package

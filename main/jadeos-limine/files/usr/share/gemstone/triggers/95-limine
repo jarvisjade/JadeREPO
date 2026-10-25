@@ -1,0 +1,2 @@
+path usr/share/limine/*
+run /usr/bin/jo-limine update

@@ -1,0 +1,24 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=fribidi
+srcdir=$PWD
+
+build() {
+    cd fribidi-$pkgver
+    meson setup build --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=lib --libexecdir=lib --sbindir=bin --buildtype=plain --wrap-mode=nofallback \
+        -Ddocs=false \
+        -Dbin=false \
+        -Dtests=false
+    meson compile -C build
+}
+
+package() {
+    cd fribidi-$pkgver
+    meson install -C build --destdir "$pkgdir"
+}
+
+build
+cd "$srcdir"
+package

@@ -1,0 +1,133 @@
+#!/usr/bin/bash
+# See LICENSE file for copyright and license details.
+# JadeOS initramfs init.
+
+export PATH=/usr/bin
+
+rescue() {
+    echo "jadeos-initramfs: $*" >&2
+    echo "jadeos-initramfs: starting an emergency shell; exit it to retry the boot" >&2
+    bash -i
+}
+
+mount -t proc -o nosuid,noexec,nodev proc /proc
+mount -t sysfs -o nosuid,noexec,nodev sysfs /sys
+mount -t devtmpfs -o mode=0755,nosuid devtmpfs /dev
+mount -t tmpfs -o mode=0755,nosuid,nodev tmpfs /run
+
+ln -sfn /proc/self/fd /dev/fd
+ln -sfn /proc/self/fd/0 /dev/stdin
+ln -sfn /proc/self/fd/1 /dev/stdout
+ln -sfn /proc/self/fd/2 /dev/stderr
+
+root=""
+rootfstype=""
+rootflags=""
+mode=ro
+init=/usr/bin/init
+live=""
+shell=0
+
+read -r -a arguments < /proc/cmdline
+for argument in "${arguments[@]}"; do
+    case "$argument" in
+        root=*) root=${argument#root=} ;;
+        rootfstype=*) rootfstype=${argument#rootfstype=} ;;
+        rootflags=*) rootflags=${argument#rootflags=} ;;
+        rw) mode=rw ;;
+        ro) mode=ro ;;
+        init=*) init=${argument#init=} ;;
+        jadeos.live=*) live=${argument#jadeos.live=} ;;
+        jadeos.shell) shell=1 ;;
+    esac
+done
+
+while read -r module; do
+    modprobe -q "$module" 2>/dev/null
+done < /etc/initramfs-modules
+
+[[ "$shell" == 1 ]] && rescue "shell requested on the kernel command line"
+
+find_device() {
+    local spec=$1 device="" attempt
+    for ((attempt = 0; attempt < 120; ++attempt)); do
+        case "$spec" in
+            /dev/*) [[ -b "$spec" ]] && device=$spec ;;
+            UUID=*|LABEL=*|PARTUUID=*|PARTLABEL=*)
+                device=$(blkid -l -o device -t "$spec" 2>/dev/null) ;;
+            *) return 1 ;;
+        esac
+        if [[ -n "$device" && -b "$device" ]]; then
+            printf '%s\n' "$device"
+            return 0
+        fi
+        sleep 0.25
+    done
+    return 1
+}
+
+mkdir -p /new
+
+find_live_medium() {
+    local label=$1 attempt device
+    for ((attempt = 0; attempt < 120; ++attempt)); do
+        for device in /sys/class/block/*; do
+            device=/dev/${device##*/}
+            [[ -b "$device" ]] || continue
+            if [[ "$(blkid -p -s TYPE -o value "$device" 2>/dev/null)" == iso9660 &&
+                "$(blkid -p -s LABEL -o value "$device" 2>/dev/null)" == "$label" ]]; then
+                printf '%s\n' "$device"
+                return 0
+            fi
+        done
+        sleep 0.25
+    done
+    return 1
+}
+
+mount_live() {
+    until medium=$(find_live_medium "$live"); do
+        rescue "no ISO 9660 live medium with label $live found"
+    done
+
+    mkdir -p /run/live/medium /run/live/rootfs /run/live/overlay
+    until mount -t iso9660 -o ro "$medium" /run/live/medium; do
+        rescue "cannot mount the live medium $medium"
+    done
+    until mount -t squashfs -o ro,loop /run/live/medium/live/jadeos.sfs /run/live/rootfs; do
+        rescue "cannot mount /live/jadeos.sfs from $medium"
+    done
+    mount -t tmpfs -o mode=0755 tmpfs /run/live/overlay
+    mkdir -p /run/live/overlay/upper /run/live/overlay/work
+    until mount -t overlay overlay \
+        -o lowerdir=/run/live/rootfs,upperdir=/run/live/overlay/upper,workdir=/run/live/overlay/work /new; do
+        rescue "cannot assemble the live overlay"
+    done
+}
+
+mount_disk() {
+    [[ -n "$root" ]] || rescue "no root= or jadeos.live= on the kernel command line"
+    until device=$(find_device "$root"); do
+        rescue "root device $root not found"
+    done
+    options=$mode
+    [[ -n "$rootflags" ]] && options="$options,$rootflags"
+    until mount ${rootfstype:+-t "$rootfstype"} -o "$options" "$device" /new; do
+        rescue "cannot mount the root filesystem $device"
+    done
+}
+
+source=disk
+[[ -n "$live" ]] && source=live
+"mount_$source"
+
+until [[ -x "/new$init" || -L "/new$init" ]]; do
+    rescue "init $init not found in the root filesystem"
+done
+
+mount --move /dev /new/dev
+mount --move /run /new/run
+umount /sys
+umount /proc
+
+exec switch_root /new "$init"

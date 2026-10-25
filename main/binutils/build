@@ -1,0 +1,26 @@
+#!/bin/sh -e
+
+mkdir build
+cd build
+../configure \
+    --prefix=/usr \
+    --libdir=/usr/lib \
+    --sysconfdir=/etc \
+    --enable-ld=default \
+    --enable-gold=no \
+    --enable-plugins \
+    --enable-shared \
+    --enable-64-bit-bfd \
+    --enable-new-dtags \
+    --enable-default-hash-style=gnu \
+    --with-system-zlib \
+    --with-zstd \
+    --disable-gdb \
+    --disable-gdbserver \
+    --disable-gprofng \
+    --disable-sim \
+    --disable-werror \
+    --disable-nls
+make tooldir=/usr
+make tooldir=/usr DESTDIR="$1" install
+rm -f "$1"/usr/lib/*.a

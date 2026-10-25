@@ -1,0 +1,24 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=libffi
+srcdir=$PWD
+
+build() {
+    cd libffi-$pkgver
+    ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=/usr/lib --libexecdir=/usr/lib --sbindir=/usr/bin --disable-static \
+        --disable-exec-static-tramp \
+        --disable-multi-os-directory \
+        --disable-docs
+    make
+}
+
+package() {
+    cd libffi-$pkgver
+    make DESTDIR="$pkgdir" install
+}
+
+build
+cd "$srcdir"
+package

@@ -1,0 +1,3 @@
+description: Library that does image file loading and saving as well as rendering, manipulation, arbitrary polygon support
+url: https://sourceforge.net/projects/enlightenment/
+license: Imlib2

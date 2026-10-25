@@ -1,0 +1,7 @@
+glibc
+gcc
+qt6-base
+iso-codes
+cmake make
+ninja make
+pkgconf make

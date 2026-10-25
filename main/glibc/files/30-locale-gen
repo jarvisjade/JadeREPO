@@ -1,0 +1,3 @@
+path etc/locale.gen
+path usr/bin/locale-gen
+run /usr/bin/locale-gen

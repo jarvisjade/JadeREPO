@@ -1,0 +1,31 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=eudev
+srcdir=$PWD
+
+build() {
+    cd eudev-$pkgver
+    ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=/usr/lib --libexecdir=/usr/lib --sbindir=/usr/bin --disable-static \
+        --with-rootprefix=/usr \
+        --with-rootlibdir=/usr/lib \
+        --enable-manpages=no \
+        --disable-selinux \
+        --enable-kmod \
+        --enable-blkid \
+        --enable-hwdb
+    make
+}
+
+package() {
+    cd eudev-$pkgver
+    make DESTDIR="$pkgdir" install
+    rm -rf "$pkgdir/usr/share/doc"
+    install -Dm755 "$srcdir/udev.initd" "$pkgdir/etc/init.d/udev"
+    install -Dm755 "$srcdir/udev-trigger.initd" "$pkgdir/etc/init.d/udev-trigger"
+}
+
+build
+cd "$srcdir"
+package

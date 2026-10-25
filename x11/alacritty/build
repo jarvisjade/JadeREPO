@@ -1,0 +1,30 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=alacritty
+srcdir=$PWD
+
+rust_target=x86_64-unknown-linux-gnu
+
+build() {
+    cd "alacritty-$pkgver"
+    export CARGO_HOME="$srcdir/cargo-home"
+    export CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER="$CC"
+    export CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUSTFLAGS="-C target-cpu=x86-64"
+    cargo build --release --locked --target "$rust_target" -j "$GEMSTONE_JOBS" \
+        -p alacritty --no-default-features --features x11
+}
+
+package() {
+    cd "alacritty-$pkgver"
+    install -Dm755 "target/$rust_target/release/alacritty" "$pkgdir/usr/bin/alacritty"
+    install -Dm644 extra/linux/Alacritty.desktop "$pkgdir/usr/share/applications/Alacritty.desktop"
+    install -Dm644 extra/logo/alacritty-term.svg "$pkgdir/usr/share/pixmaps/Alacritty.svg"
+    install -Dm644 LICENSE-MIT "$pkgdir/usr/share/licenses/$pkgname/LICENSE-MIT"
+    install -Dm644 LICENSE-APACHE "$pkgdir/usr/share/licenses/$pkgname/LICENSE-APACHE"
+}
+
+build
+cd "$srcdir"
+package

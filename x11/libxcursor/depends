@@ -1,0 +1,5 @@
+glibc
+libx11
+libxfixes
+libxrender
+pkgconf make

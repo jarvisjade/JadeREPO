@@ -1,0 +1,3 @@
+description: Sources for time zone and daylight saving time data
+url: https://www.iana.org/time-zones
+license: LicenseRef-tz

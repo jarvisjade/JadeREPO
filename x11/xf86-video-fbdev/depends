@@ -1,0 +1,4 @@
+glibc
+xorg-server
+libpciaccess
+pkgconf make

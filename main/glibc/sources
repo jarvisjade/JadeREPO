@@ -1,0 +1,4 @@
+https://ftp.gnu.org/gnu/glibc/glibc-%VERSION%.tar.xz glibc-%VERSION%
+files/locale-gen
+files/30-locale-gen
+files/10-ldconfig

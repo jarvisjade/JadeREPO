@@ -1,0 +1,6 @@
+glibc
+expat
+jadeos-sysusers
+meson make
+ninja make
+pkgconf make

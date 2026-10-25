@@ -1,0 +1,26 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=libgpg-error
+srcdir=$PWD
+
+build() {
+    cd libgpg-error-$pkgver
+    ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=/usr/lib --libexecdir=/usr/lib --sbindir=/usr/bin --disable-static \
+        --disable-nls \
+        --disable-doc \
+        --disable-tests \
+        --enable-install-gpg-error-config
+    make
+}
+
+package() {
+    cd libgpg-error-$pkgver
+    make DESTDIR="$pkgdir" install
+    rm -rf "$pkgdir/usr/share/doc" "$pkgdir/usr/share/info"
+}
+
+build
+cd "$srcdir"
+package

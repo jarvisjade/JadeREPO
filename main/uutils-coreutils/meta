@@ -1,0 +1,3 @@
+description: Rust implementation of the core utilities (uutils), replacing GNU coreutils
+url: https://github.com/uutils/coreutils
+license: MIT

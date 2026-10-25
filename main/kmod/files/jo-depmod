@@ -1,0 +1,13 @@
+#!/usr/bin/bash
+# See LICENSE file for copyright and license details.
+# jo-depmod: run depmod for each kernel whose module tree a transaction changed (paths on stdin).
+
+declare -A seen=()
+while read -r target; do
+	kver=${target#usr/lib/modules/}
+	kver=${kver%%/*}
+	[[ -n "$kver" && -z "${seen[$kver]:-}" ]] || continue
+	seen[$kver]=1
+	[[ -d "/usr/lib/modules/$kver/kernel" ]] && depmod "$kver"
+done
+exit 0

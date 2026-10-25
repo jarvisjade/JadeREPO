@@ -1,0 +1,23 @@
+# Gemstone repositories: <name> <location> [path=<subdirectory>] [ref=<branch>]
+#
+# A location is a git URL (git+https://... or ending in .git), an HTTPS
+# archive (.tar.gz, .tar.xz, .tar.zst) or a local directory. A name listed
+# again adds a fallback location. When two repositories have a recipe of the
+# same name, the one listed first wins. Add your own with
+# "gemstone lode add <name> <location>".
+
+main                 git+https://github.com/jarvisjade/JadeREPO.git  path=main
+misc                 git+https://github.com/jarvisjade/JadeREPO.git  path=main/misc
+x11                  git+https://github.com/jarvisjade/JadeREPO.git  path=x11
+binary               git+https://github.com/jarvisjade/JadeREPO.git  path=binary
+proprietary-drivers  git+https://github.com/jarvisjade/JadeREPO.git  path=proprietary-drivers
+virtualization       git+https://github.com/jarvisjade/JadeREPO.git  path=virtualization
+games                git+https://github.com/jarvisjade/JadeREPO.git  path=games
+
+main                 https://codeload.github.com/jarvisjade/JadeREPO/tar.gz/refs/heads/main  path=main
+misc                 https://codeload.github.com/jarvisjade/JadeREPO/tar.gz/refs/heads/main  path=main/misc
+x11                  https://codeload.github.com/jarvisjade/JadeREPO/tar.gz/refs/heads/main  path=x11
+binary               https://codeload.github.com/jarvisjade/JadeREPO/tar.gz/refs/heads/main  path=binary
+proprietary-drivers  https://codeload.github.com/jarvisjade/JadeREPO/tar.gz/refs/heads/main  path=proprietary-drivers
+virtualization       https://codeload.github.com/jarvisjade/JadeREPO/tar.gz/refs/heads/main  path=virtualization
+games                https://codeload.github.com/jarvisjade/JadeREPO/tar.gz/refs/heads/main  path=games

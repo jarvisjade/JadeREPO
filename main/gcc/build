@@ -1,0 +1,32 @@
+#!/bin/sh -e
+
+mkdir build
+cd build
+../configure \
+    --prefix=/usr \
+    --libdir=/usr/lib \
+    --libexecdir=/usr/lib \
+    --enable-languages=c,c++,d \
+    --enable-default-pie \
+    --enable-default-ssp \
+    --enable-host-pie \
+    --enable-shared \
+    --enable-threads=posix \
+    --enable-__cxa_atexit \
+    --enable-linker-build-id \
+    --enable-lto \
+    --enable-plugin \
+    --with-system-zlib \
+    --with-arch=x86-64 \
+    --with-tune=generic \
+    --disable-multilib \
+    --disable-bootstrap \
+    --disable-libssp \
+    --disable-werror \
+    --disable-nls
+make
+make DESTDIR="$1" install
+ln -s gcc "$1/usr/bin/cc"
+mkdir -p "$1/usr/lib/bfd-plugins"
+ln -s "../gcc/x86_64-pc-linux-gnu/$2/liblto_plugin.so" "$1/usr/lib/bfd-plugins/"
+find "$1/usr/lib" -name '*.la' -delete

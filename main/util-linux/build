@@ -1,0 +1,49 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=util-linux
+srcdir=$PWD
+
+build() {
+    cd util-linux-$pkgver
+    ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=/usr/lib --libexecdir=/usr/lib --sbindir=/usr/bin --disable-static \
+        --bindir=/usr/bin \
+        --enable-fs-paths-default=/usr/bin:/usr/local/bin \
+        --disable-nls \
+        --disable-liblastlog2 \
+        --disable-pylibmount \
+        --disable-makeinstall-chown \
+        --disable-makeinstall-setuid \
+        --without-python \
+        --without-systemd \
+        --without-systemdsystemunitdir \
+        --without-udev \
+        --enable-write \
+        --disable-vipw \
+        --disable-newgrp \
+        --enable-chfn-chsh \
+        --enable-login \
+        --enable-agetty \
+        --enable-su \
+        --enable-sulogin \
+        --disable-runuser \
+        --without-btrfs \
+        --without-econf
+    make
+}
+
+package() {
+    cd util-linux-$pkgver
+    make DESTDIR="$pkgdir" install
+    rm -rf "$pkgdir/usr/share/doc" "$pkgdir/usr/share/bash-completion"
+    local program
+    for program in mount umount su chfn chsh wall write; do
+        [[ -e "$pkgdir/usr/bin/$program" ]] && chmod 4755 "$pkgdir/usr/bin/$program"
+    done
+    chmod 2755 "$pkgdir/usr/bin/wall" "$pkgdir/usr/bin/write" 2>/dev/null || true
+}
+
+build
+cd "$srcdir"
+package

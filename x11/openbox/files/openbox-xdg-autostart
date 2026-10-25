@@ -1,0 +1,59 @@
+#!/usr/bin/bash
+# See LICENSE file for copyright and license details.
+# openbox-xdg-autostart <desktop>... : start the XDG autostart applications
+# (Desktop Application Autostart Specification), a bash replacement for
+# Openbox's Python/PyXDG script. Entries in $XDG_CONFIG_HOME/autostart hide
+# system entries of the same name; Hidden=true disables an entry;
+# OnlyShowIn/NotShowIn are matched against the desktops given as arguments
+# (Openbox passes OPENBOX); TryExec must name an existing program.
+
+desktops=" ${*:-OPENBOX} "
+user_dir="${XDG_CONFIG_HOME:-$HOME/.config}/autostart"
+IFS=: read -r -a system_dirs <<< "${XDG_CONFIG_DIRS:-/etc/xdg}"
+
+declare -A seen=()
+
+# value <file> <key>: the key's value in the [Desktop Entry] group
+value() {
+	awk -v key="$2" '
+		/^\[/ { group = ($0 == "[Desktop Entry]") ; next }
+		group && index($0, key "=") == 1 { print substr($0, length(key) + 2); exit }
+	' "$1"
+}
+
+# listed <list> : true if one of our desktops is in the ;-separated list
+listed() {
+	local name
+	IFS=';' read -r -a names <<< "$1"
+	for name in "${names[@]}"; do
+		[[ -n "$name" && "$desktops" == *" $name "* ]] && return 0
+	done
+	return 1
+}
+
+start() {
+	local file=$1 only not tryexec exec
+	[[ "$(value "$file" Hidden)" == true ]] && return
+	only=$(value "$file" OnlyShowIn)
+	not=$(value "$file" NotShowIn)
+	[[ -n "$only" ]] && ! listed "$only" && return
+	[[ -n "$not" ]] && listed "$not" && return
+	tryexec=$(value "$file" TryExec)
+	[[ -z "$tryexec" ]] || command -v "$tryexec" >/dev/null || return
+	exec=$(value "$file" Exec)
+	[[ -n "$exec" ]] || return
+	# Drop field codes (%f, %U, ...); %% is a literal percent sign.
+	exec=$(sed -e 's/%[fFuUdDnNickvm]//g' -e 's/%%/%/g' <<< "$exec")
+	sh -c "$exec" &
+}
+
+for dir in "$user_dir" "${system_dirs[@]/%//autostart}"; do
+	[[ -d "$dir" ]] || continue
+	for file in "$dir"/*.desktop; do
+		[[ -f "$file" ]] || continue
+		name=${file##*/}
+		[[ -n "${seen[$name]:-}" ]] && continue
+		seen[$name]=1
+		start "$file"
+	done
+done

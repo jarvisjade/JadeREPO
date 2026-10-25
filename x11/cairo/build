@@ -1,0 +1,37 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=cairo
+srcdir=$PWD
+
+build() {
+    cd cairo-$pkgver
+    meson setup build --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=lib --libexecdir=lib --sbindir=bin --buildtype=plain --wrap-mode=nofallback \
+        -Ddwrite=disabled \
+        -Dquartz=disabled \
+        -Dfontconfig=enabled \
+        -Dfreetype=enabled \
+        -Dpng=enabled \
+        -Dzlib=enabled \
+        -Dxcb=enabled \
+        -Dxlib=enabled \
+        -Dxlib-xcb=disabled \
+        -Dglib=enabled \
+        -Dlzo=disabled \
+        -Dspectre=disabled \
+        -Dsymbol-lookup=disabled \
+        -Dgtk2-utils=disabled \
+        -Dtests=disabled \
+        -Dgtk_doc=false
+    meson compile -C build
+}
+
+package() {
+    cd cairo-$pkgver
+    meson install -C build --destdir "$pkgdir"
+}
+
+build
+cd "$srcdir"
+package

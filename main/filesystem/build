@@ -1,0 +1,32 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=filesystem
+srcdir=$PWD
+
+package() {
+    cd "$pkgdir"
+    install -d -m755 boot dev etc home mnt opt proc run srv sys usr var media
+    install -d -m755 usr/bin usr/include usr/lib usr/share/man usr/local/{bin,lib,share}
+    install -d -m755 var/cache var/lib var/log var/spool var/opt var/empty
+    install -d -m750 root
+    install -d -m1777 tmp var/tmp
+
+    ln -s usr/bin bin
+    ln -s usr/bin sbin
+    ln -s usr/lib lib
+    ln -s usr/lib lib64
+    ln -s bin usr/sbin
+    ln -s lib usr/lib64
+    ln -s ../run var/run
+    ln -s ../run/lock var/lock
+
+    cp -a "$srcdir/files/." "$pkgdir/"
+    chmod -R u=rwX,go=rX etc usr/lib/os-release
+    chmod 600 etc/shadow etc/gshadow
+    ln -s ../usr/lib/os-release etc/os-release
+}
+
+cd "$srcdir"
+package

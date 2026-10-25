@@ -1,0 +1,9 @@
+glibc
+glib
+libpng
+libjpeg-turbo
+shared-mime-info
+meson make
+ninja make
+python make
+pkgconf make

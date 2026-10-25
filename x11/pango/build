@@ -1,0 +1,32 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=pango
+srcdir=$PWD
+
+build() {
+    cd pango-$pkgver
+    meson setup build --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=lib --libexecdir=lib --sbindir=bin --buildtype=plain --wrap-mode=nofallback \
+        -Dintrospection=disabled \
+        -Ddocumentation=false \
+        -Dman-pages=false \
+        -Dbuild-testsuite=false \
+        -Dbuild-examples=false \
+        -Dfontconfig=enabled \
+        -Dfreetype=enabled \
+        -Dcairo=enabled \
+        -Dxft=enabled \
+        -Dlibthai=disabled \
+        -Dsysprof=disabled
+    meson compile -C build
+}
+
+package() {
+    cd pango-$pkgver
+    meson install -C build --destdir "$pkgdir"
+}
+
+build
+cd "$srcdir"
+package

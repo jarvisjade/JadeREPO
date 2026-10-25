@@ -1,0 +1,2 @@
+path usr/lib/gtk-3.0/3.0.0/immodules/*.so
+run /usr/bin/gtk-query-immodules-3.0 --update-cache

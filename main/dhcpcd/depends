@@ -1,0 +1,6 @@
+glibc
+eudev
+openresolv
+jadeos-sysusers
+openssl
+pkgconf make

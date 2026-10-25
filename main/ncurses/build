@@ -1,0 +1,49 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=ncurses
+srcdir=$PWD
+
+build() {
+    cd ncurses-$pkgver
+    mkdir -p build-host
+    (cd build-host && env -u CC -u CXX -u CFLAGS -u CXXFLAGS -u LDFLAGS -u CPP -u AR -u RANLIB \
+        ../configure --without-ada --without-cxx --without-manpages --without-tests && make -C include && make -C progs tic)
+    ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=/usr/lib --libexecdir=/usr/lib --sbindir=/usr/bin --disable-static \
+        --with-shared \
+        --with-normal \
+        --without-debug \
+        --without-ada \
+        --without-tests \
+        --enable-widec \
+        --enable-pc-files \
+        --with-pkg-config-libdir=/usr/lib/pkgconfig \
+        --with-cxx-binding \
+        --with-cxx-shared \
+        --with-versioned-syms \
+        --mandir=/usr/share/man \
+        --with-manpage-format=normal \
+        --disable-stripping
+    make
+}
+
+package() {
+    cd ncurses-$pkgver
+    make DESTDIR="$pkgdir" TIC_PATH="$srcdir/ncurses-$pkgver/build-host/progs/tic" install
+    rm -f "$pkgdir"/usr/lib/*.a
+    local lib
+    for lib in ncurses ncurses++ form panel menu; do
+        printf 'INPUT(-l%sw)\n' "$lib" > "$pkgdir/usr/lib/lib$lib.so"
+        ln -sf ${lib}w.pc "$pkgdir/usr/lib/pkgconfig/$lib.pc"
+    done
+    printf 'INPUT(-lncursesw)\n' > "$pkgdir/usr/lib/libcursesw.so"
+    ln -sf libncurses.so "$pkgdir/usr/lib/libcurses.so"
+    ln -sf libncursesw.so.6 "$pkgdir/usr/lib/libtinfo.so.6"
+    ln -sf libncursesw.so "$pkgdir/usr/lib/libtinfo.so"
+    ln -sf ncursesw.pc "$pkgdir/usr/lib/pkgconfig/tinfo.pc"
+}
+
+build
+cd "$srcdir"
+package

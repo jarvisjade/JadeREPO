@@ -1,0 +1,33 @@
+#!/bin/bash -e
+
+pkgdir=$1
+pkgver=$2
+pkgname=libfm
+srcdir=$PWD
+
+build() {
+    cd libfm-$pkgver
+    export CFLAGS="$CFLAGS -std=gnu17 -Wno-error=incompatible-pointer-types"
+    ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=/usr/lib --libexecdir=/usr/lib --sbindir=/usr/bin --disable-static \
+        --with-gtk=3 \
+        --disable-old-actions \
+        --disable-exif \
+        --disable-udisks \
+        --disable-gtk-doc \
+        --disable-demo
+    make
+}
+
+package() {
+    cd libfm-$pkgver
+    make DESTDIR="$pkgdir" install
+    rm -f "$pkgdir"/usr/include/libfm/fm-{extra,version,xml-file}.h \
+        "$pkgdir"/usr/include/libfm-1.0/fm-{extra,version,xml-file}.h \
+        "$pkgdir"/usr/lib/libfm-extra.so* \
+        "$pkgdir/usr/lib/pkgconfig/libfm-extra.pc"
+    rm -f "$pkgdir/usr/include/libfm"
+}
+
+build
+cd "$srcdir"
+package

@@ -1,0 +1,3 @@
+description: Application development toolkit for controlling system-wide privileges
+url: https://github.com/polkit-org/polkit
+license: LGPL-2.0-or-later
