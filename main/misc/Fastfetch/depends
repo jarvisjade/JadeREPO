@@ -1,0 +1,4 @@
+zlib
+cmake make
+pkgconf make
+linux-headers make
